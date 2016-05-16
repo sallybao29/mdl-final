@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #include "matrix.h"
 #include "gmath.h"
@@ -9,19 +10,19 @@
 
 /*======== double * calculate_normal() ==========
   Inputs:   double ax
-            double ay
-	    double az
-	    double bx
-	    double by
-	    double bz  
+	double ay
+	double az
+	double bx
+	double by
+	double bz  
   Returns: A double arry of size 3 representing the 
-           cross product of <ax, ay, az> and <bx, by, bz>
+	cross product of <ax, ay, az> and <bx, by, bz>
 
   04/17/12 16:46:30
   jonalf
   ====================*/
 double * calculate_normal( double ax, double ay, double az,	
-			   double bx, double by, double bz ) {
+													 double bx, double by, double bz ) {
   
   double *normal;
   normal = (double *)malloc(3 * sizeof(double));
@@ -75,4 +76,12 @@ double calculate_dot( struct matrix *points, int i ) {
 
   free(normal);  
   return dot;
+}
+
+double apply_scale(double d, char* type){
+	double output;
+	if (strcmp(type, "linear") == 0)
+		output = d;
+
+	return output;
 }

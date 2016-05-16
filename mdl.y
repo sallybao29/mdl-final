@@ -6,7 +6,6 @@
 #include "parser.h"
 #include "matrix.h"
 #include "misc_headers.h"
-
   SYMTAB *s;
   struct light *l;
   struct constants *c;
@@ -15,7 +14,6 @@
   int lastop=0;
   int lineno=0;
 #define YYERROR_VERBOSE 1
-
   %}
 
 
@@ -25,7 +23,7 @@
   double val;
   char string[255];
 
-}
+ }
 
 %token COMMENT
 %token <val> DOUBLE
@@ -38,7 +36,7 @@
 %token <string> SHADING SHADING_TYPE SETKNOBS FOCAL DISPLAY WEB
 %token <string> CO
 %%
-/* Grammar rules */
+ /* Grammar rules */
 
 input:
 | input command
@@ -676,7 +674,7 @@ FRAMES DOUBLE
   op[lastop].op.frames.num_frames = $2;
   lastop++;
 }|
-VARY STRING DOUBLE DOUBLE DOUBLE DOUBLE
+VARY STRING DOUBLE DOUBLE DOUBLE DOUBLE STRING
 {
   lineno++;
   op[lastop].opcode = VARY;
@@ -685,7 +683,8 @@ VARY STRING DOUBLE DOUBLE DOUBLE DOUBLE
   op[lastop].op.vary.end_frame = $4;
   op[lastop].op.vary.start_val = $5;
   op[lastop].op.vary.end_val = $6;
-  lastop++;
+	strncpy(op[lastop].op.vary.scale, $7, 255);
+	lastop++;
 }|
 PUSH
 {
@@ -790,13 +789,15 @@ int main(int argc, char **argv)
       yyin = fopen(argv[1],"r");
       
       if ( argc == 3 && strncmp(argv[2], "-l", 2) == 0) {
-	printf("lines");
-	i = 0;
+				printf("lines");
+				i = 0;
       }
 	
     }
   
   yyparse();
+  //COMMENT OUT PRINT_PCODE AND UNCOMMENT
+  //MY_MAIN IN ORDER TO RUN YOUR CODE
   //print_pcode();
   my_main();
 

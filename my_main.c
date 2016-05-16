@@ -62,6 +62,7 @@
 #include "display.h"
 #include "draw.h"
 #include "stack.h"
+#include "gmath.h"
 
 /*======== void first_pass()) ==========
   Inputs:   
@@ -142,8 +143,9 @@ struct vary_node ** second_pass() {
   struct vary_node * knob;
   int i, j, num_steps, start_frame, end_frame;
   double count, step, start_val, end_val;
+	char* s;
 	
-  knobs = (struct vary_node **)malloc(sizeof(struct vary_node*)*num_frames);
+	knobs = (struct vary_node **)malloc(sizeof(struct vary_node*)*num_frames);
   for (i = 0; i < lastop; i++){
     if (op[i].opcode == VARY){
       if (op[i].op.vary.start_frame < 0){
@@ -162,22 +164,24 @@ struct vary_node ** second_pass() {
       end_frame = op[i].op.vary.end_frame;
       start_val = op[i].op.vary.start_val;
       end_val = op[i].op.vary.end_val;
+			s = op[i].op.vary.scale;
 
-      count = start_val;
+			printf("Scale %s\n", s);
+			count = start_val;
       num_steps = end_frame - start_frame;
       step = (end_val - start_val) / num_steps;
       for (j = start_frame; j < end_frame + 1; j++){
 				
 				knob = (struct vary_node*)malloc(sizeof(struct vary_node));
 				strncpy(knob -> name, op[i].op.vary.p -> name, sizeof(knob -> name));
-				knob -> value = count;
+				knob -> value = apply_scale(count, s);
 				knob -> next = knobs[j];
 				knobs[j] = knob;
 				count += step;
       }
     }
   }
-  return knobs;
+	return knobs;
 }
 
 
@@ -271,13 +275,21 @@ void my_main( int polygons ) {
 	}
 	for (j = 0; j < num_frames; j++){
 		
-		if (num_frames > 1)		
+		if (num_frames > 1)		{
 			for (vn = knobs[j]; vn != NULL; vn = vn -> next)
 				set_value(lookup_symbol(vn -> name), vn -> value);
-	
+
+			print_knobs();
+		}
 		for (i = 0; i < lastop; i++){
 			switch (op[i].opcode){
 
+			case AMBIENT:
+				g.red = op[i].op.ambient.c[0];
+				g.green = op[i].op.ambient.c[1];
+				g.blue = op[i].op.ambient.c[2]; 
+				break;
+				
 			case SPHERE:
 				add_sphere( tmp,op[i].op.sphere.d[0], //cx
 										op[i].op.sphere.d[1],  //cy
@@ -429,8 +441,8 @@ void my_main( int polygons ) {
 		for (i = 0; i < num_frames; i++){
 			while (knobs[i] != NULL){
 				vn = knobs[i];
-				free(vn);
 				knobs[i] = knobs[i] -> next;
+				free(vn);
 			}
 		}
 		free(knobs);
