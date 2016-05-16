@@ -106,21 +106,20 @@ struct command
     struct {
       SYMTAB *p;
       double start_frame, end_frame, start_val, end_val;
-			char scale[255];
-		} vary;
-		struct {
-			SYMTAB *p;
-		} save;
-		struct {
-			SYMTAB *p;
-		} shading;
-		struct {
-			double value;
-		} setknobs;
-		struct { 
-			double value;
-		} focal;
-	} op;
+    } vary;
+    struct {
+      SYMTAB *p;
+    } save;
+    struct {
+      SYMTAB *p;
+    } shading;
+    struct {
+      double value;
+    } setknobs;
+    struct { 
+      double value;
+    } focal;
+  } op;
 };
 
 

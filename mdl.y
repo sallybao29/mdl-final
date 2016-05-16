@@ -674,7 +674,7 @@ FRAMES DOUBLE
   op[lastop].op.frames.num_frames = $2;
   lastop++;
 }|
-VARY STRING DOUBLE DOUBLE DOUBLE DOUBLE STRING
+VARY STRING DOUBLE DOUBLE DOUBLE DOUBLE 
 {
   lineno++;
   op[lastop].opcode = VARY;
@@ -683,7 +683,6 @@ VARY STRING DOUBLE DOUBLE DOUBLE DOUBLE STRING
   op[lastop].op.vary.end_frame = $4;
   op[lastop].op.vary.start_val = $5;
   op[lastop].op.vary.end_val = $6;
-	strncpy(op[lastop].op.vary.scale, $7, 255);
 	lastop++;
 }|
 PUSH

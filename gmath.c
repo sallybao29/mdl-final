@@ -77,11 +77,3 @@ double calculate_dot( struct matrix *points, int i ) {
   free(normal);  
   return dot;
 }
-
-double apply_scale(double d, char* type){
-	double output;
-	if (strcmp(type, "linear") == 0)
-		output = d;
-
-	return output;
-}
