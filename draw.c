@@ -96,10 +96,11 @@ void fill( struct matrix *points, int i, screen s, color c){
 		draw_line(x0, y, x1, y, s, c);
 
 		//printf("%d\t%d\n", (int)y, (int)y_val[1]);
-		if ((int)y == (int)(y_val[1])){
+		
+		//desperate measures
+		if (round(y) == round(y_val[1])){
 			d1 = d2;
 			x1 = x_val[1];
-			printf("yes\n");
 		}
 
 		y += 1;
@@ -127,7 +128,7 @@ void draw_polygons( struct matrix *polygons, screen s, color c ) {
 
 		if ( calculate_dot( polygons, i ) < 0 ) {
 			
-			c = change_color(i % 6);
+			c = change_color(i);
 			
 			draw_line( polygons->m[0][i],
 								 polygons->m[1][i],
@@ -656,106 +657,106 @@ void draw_line(int x0, int y0, int x1, int y1, screen s, color c) {
 	//printf("Drawing the line\n");
 	int x, y, d, dx, dy;
 
-		x = x0;
-		y = y0;
+	x = x0;
+	y = y0;
   
-		//swap points so we're always draing left to right
-		if ( x0 > x1 ) {
-			x = x1;
-			y = y1;
-			x1 = x0;
-			y1 = y0;
-		}
-
-		//need to know dx and dy for this version
-		dx = (x1 - x) * 2;
-		dy = (y1 - y) * 2;
-
-		//positive slope: Octants 1, 2 (5 and 6)
-		if ( dy > 0 ) {
-
-			//slope < 1: Octant 1 (5)
-			if ( dx > dy ) {
-				d = dy - ( dx / 2 );
-  
-				while ( x <= x1 ) {
-					plot(s, c, x, y);
-
-					if ( d < 0 ) {
-						x = x + 1;
-						d = d + dy;
-					}
-					else {
-						x = x + 1;
-						y = y + 1;
-						d = d + dy - dx;
-					}
-				}
-			}
-
-			//slope > 1: Octant 2 (6)
-			else {
-				d = ( dy / 2 ) - dx;
-				while ( y <= y1 ) {
-
-					plot(s, c, x, y );
-					if ( d > 0 ) {
-						y = y + 1;
-						d = d - dx;
-					}
-					else {
-						y = y + 1;
-						x = x + 1;
-						d = d + dy - dx;
-					}
-				}
-			}
-		}
-
-		//negative slope: Octants 7, 8 (3 and 4)
-		else { 
-
-			//slope > -1: Octant 8 (4)
-			if ( dx > abs(dy) ) {
-
-				d = dy + ( dx / 2 );
-  
-				while ( x <= x1 ) {
-
-					plot(s, c, x, y);
-
-					if ( d > 0 ) {
-						x = x + 1;
-						d = d + dy;
-					}
-					else {
-						x = x + 1;
-						y = y - 1;
-						d = d + dy + dx;
-					}
-				}
-			}
-
-			//slope < -1: Octant 7 (3)
-			else {
-
-				d =  (dy / 2) + dx;
-
-				while ( y >= y1 ) {
-	
-					plot(s, c, x, y );
-					if ( d < 0 ) {
-						y = y - 1;
-						d = d + dx;
-					}
-					else {
-						y = y - 1;
-						x = x + 1;
-						d = d + dy + dx;
-					}
-				}
-			}
-		}
-		//printf("Drew the line\n");
+	//swap points so we're always draing left to right
+	if ( x0 > x1 ) {
+		x = x1;
+		y = y1;
+		x1 = x0;
+		y1 = y0;
 	}
+
+	//need to know dx and dy for this version
+	dx = (x1 - x) * 2;
+	dy = (y1 - y) * 2;
+
+	//positive slope: Octants 1, 2 (5 and 6)
+	if ( dy > 0 ) {
+
+		//slope < 1: Octant 1 (5)
+		if ( dx > dy ) {
+			d = dy - ( dx / 2 );
+  
+			while ( x <= x1 ) {
+				plot(s, c, x, y);
+
+				if ( d < 0 ) {
+					x = x + 1;
+					d = d + dy;
+				}
+				else {
+					x = x + 1;
+					y = y + 1;
+					d = d + dy - dx;
+				}
+			}
+		}
+
+		//slope > 1: Octant 2 (6)
+		else {
+			d = ( dy / 2 ) - dx;
+			while ( y <= y1 ) {
+
+				plot(s, c, x, y );
+				if ( d > 0 ) {
+					y = y + 1;
+					d = d - dx;
+				}
+				else {
+					y = y + 1;
+					x = x + 1;
+					d = d + dy - dx;
+				}
+			}
+		}
+	}
+
+	//negative slope: Octants 7, 8 (3 and 4)
+	else { 
+
+		//slope > -1: Octant 8 (4)
+		if ( dx > abs(dy) ) {
+
+			d = dy + ( dx / 2 );
+  
+			while ( x <= x1 ) {
+
+				plot(s, c, x, y);
+
+				if ( d > 0 ) {
+					x = x + 1;
+					d = d + dy;
+				}
+				else {
+					x = x + 1;
+					y = y - 1;
+					d = d + dy + dx;
+				}
+			}
+		}
+
+		//slope < -1: Octant 7 (3)
+		else {
+
+			d =  (dy / 2) + dx;
+
+			while ( y >= y1 ) {
+	
+				plot(s, c, x, y );
+				if ( d < 0 ) {
+					y = y - 1;
+					d = d + dx;
+				}
+				else {
+					y = y - 1;
+					x = x + 1;
+					d = d + dy + dx;
+				}
+			}
+		}
+	}
+	//printf("Drew the line\n");
+}
 
