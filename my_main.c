@@ -143,7 +143,6 @@ struct vary_node ** second_pass() {
   struct vary_node * knob;
   int i, j, num_steps, start_frame, end_frame;
   double count, step, start_val, end_val;
-  char* s;
 	
   knobs = (struct vary_node **)malloc(sizeof(struct vary_node*)*num_frames);
   for (i = 0; i < lastop; i++){
@@ -164,7 +163,6 @@ struct vary_node ** second_pass() {
       end_frame = op[i].op.vary.end_frame;
       start_val = op[i].op.vary.start_val;
       end_val = op[i].op.vary.end_val;
-      s = op[i].op.vary.scale;
 
       count = start_val;
       num_steps = end_frame - start_frame;
