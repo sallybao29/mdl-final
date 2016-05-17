@@ -51,8 +51,9 @@ void fill( struct matrix *points, int i, screen s, color c){
   double x_val[3], y_val[3]; //top -> mid -> bottom
   double tmp;
   double d0, d1, d2;
-  double x0, x1, y;
+  double x0, x1, y0, y1;
   int m, n;
+  int fb = 0;
 
   x_val[0] = points -> m[0][i];
   x_val[1] = points -> m[0][i + 1];
@@ -61,7 +62,7 @@ void fill( struct matrix *points, int i, screen s, color c){
   y_val[0] = points -> m[1][i];
   y_val[1] = points -> m[1][i + 1];
   y_val[2] = points -> m[1][i + 2];
-
+  /*
   //sort out top, middle, and bottom
   for (m = 0; m < 3; m++){
     for (n = m + 1; n < 3; n++){
@@ -76,10 +77,7 @@ void fill( struct matrix *points, int i, screen s, color c){
     }
   }
 
-	printf("[%lf, %lf, %lf]\n", y_val[0], y_val[1], y_val[2]);
-	printf("[%d, %d, %d]\n", (int)y_val[0], (int)y_val[1], (int)y_val[2]);
-	printf("[%lf, %lf, %lf]\n", floor(y_val[0]), floor(y_val[1]), floor(y_val[2]));
-	printf("[%lf, %lf, %lf]\n", round(y_val[0]), round(y_val[1]), round(y_val[2]));
+  //printf("Reality: [%lf, %lf, %lf]\n", y_val[0], y_val[1], y_val[2]);
 
 	x0 = x_val[2]; //x bottom
 	x1 = x0;
@@ -96,16 +94,56 @@ void fill( struct matrix *points, int i, screen s, color c){
 		draw_line(x0, y, x1, y, s, c);
 
 		//printf("%d\t%d\n", (int)y, (int)y_val[1]);
-		
-		//desperate measures
-		if (round(y) == round(y_val[1])){
-			d1 = d2;
-			x1 = x_val[1];
-		}
-
 		y += 1;
 		x0 += d0;
 		x1 += d1;
+
+		if (y >= (int)y_val[1] && !fb){
+			d1 = d2;
+			x1 = x_val[1];
+			fb++; 
+		}
+	}
+  */
+  for (m = 0; m < 3; m++){
+    for (n = m + 1; n < 3; n++){
+      if (x_val[m] < x_val[n]){
+	tmp = y_val[m];
+	y_val[m] = y_val[n];
+	y_val[n] = tmp;
+	tmp = x_val[m];
+	x_val[m] = x_val[n];
+	x_val[n] = tmp;
+      }
+    }
+  }
+
+  //printf("Reality: [%lf, %lf, %lf]\n", y_val[0], y_val[1], y_val[2]);
+
+	x0 = x_val[2]; //x bottom
+	x1 = x0;
+	y = y_val[2]; //y bottom
+
+	d0 = (x_val[0] - x_val[2]) / (y_val[0] - y_val[2]); //(xt - xb) / (yt - yb)
+	d1 = (x_val[1] - x_val[2]) / (y_val[1] - y_val[2]); //(xm - xb) / (ym - yb)
+	d2 = (x_val[0] - x_val[1]) / (y_val[0] - y_val[1]); //(xt - xm) / (yt - ym)
+
+	//printf("%lf\n%lf\n%lf\n", d0, d1, d2);
+	while ((int)y < (int)(y_val[0])){
+	
+		printf("Drawing (%lf, %lf) to (%lf, %lf)\n", x0, y, x1, y);
+		draw_line(x0, y, x1, y, s, c);
+
+		//printf("%d\t%d\n", (int)y, (int)y_val[1]);
+		y += 1;
+		x0 += d0;
+		x1 += d1;
+
+		if (y >= (int)y_val[1] && !fb){
+			d1 = d2;
+			x1 = x_val[1];
+			fb++; 
+		}
 	}
 }
 
