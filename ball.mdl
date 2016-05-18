@@ -1,31 +1,25 @@
-frames 100
+frames 40
 basename ball
 push
 move 250 250 0
 rotate x 20
 move -10 0 0 wobble
 rotate z 20 shaky
+ambient 255 255 255
 sphere 0 0 0 100
+ambient 238 21 21
 torus 0 0 0 10 90
 move 0 0 100
 rotate x 90
+ambient 238 21 21
 torus 0 0 0 5 20
-pop
-push
-move 250 250 0
-scale 2 2 2 success
-sphere 0 0 0 100
 vary wobble 0 9 0 1
 vary shaky 0 9 0 1 
 vary wobble 10 29 1 -1
 vary shaky 10 29 1 -1
-vary wobble 30 49 -1 1
-vary shaky 30 49 -1 1
-vary wobble 50 69 1 -1
-vary shaky 50 69 1 -1
-vary wobble 70 79 -1 0
-vary shaky 70 79 -1 0
-vary success 80 89 .1 1
-vary success 90 99 1 .1
+vary wobble 30 39 -1 0
+vary shaky 30 39 -1 0
+
+
 
 

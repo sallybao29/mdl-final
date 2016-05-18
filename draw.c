@@ -76,72 +76,67 @@ void fill( struct matrix *points, int i, screen s, color c){
       }
     }
   }
-
   //printf("Reality: [%lf, %lf, %lf]\n", y_val[0], y_val[1], y_val[2]);
 
 	x0 = x_val[2]; //x bottom
 	x1 = x0;
-	y = y_val[2]; //y bottom
+	y0 = y_val[2]; //y bottom
 
 	d0 = (x_val[0] - x_val[2]) / (y_val[0] - y_val[2]); //(xt - xb) / (yt - yb)
 	d1 = (x_val[1] - x_val[2]) / (y_val[1] - y_val[2]); //(xm - xb) / (ym - yb)
 	d2 = (x_val[0] - x_val[1]) / (y_val[0] - y_val[1]); //(xt - xm) / (yt - ym)
 
 	//printf("%lf\n%lf\n%lf\n", d0, d1, d2);
-	while ((int)y < (int)(y_val[0])){
+	while ((int)y0 < (int)(y_val[0])){
 	
-		printf("Drawing (%lf, %lf) to (%lf, %lf)\n", x0, y, x1, y);
-		draw_line(x0, y, x1, y, s, c);
+	printf("Drawing (%lf, %lf) to (%lf, %lf)\n", x0, y0, x1, y0);
+	draw_line(x0, y0, x1, y0, s, c);
 
-		//printf("%d\t%d\n", (int)y, (int)y_val[1]);
-		y += 1;
-		x0 += d0;
-		x1 += d1;
+	//printf("%d\t%d\n", (int)y, (int)y_val[1]);
+	y0 += 1;
+	x0 += d0;
+	x1 += d1;
 
-		if (y >= (int)y_val[1] && !fb){
-			d1 = d2;
-			x1 = x_val[1];
-			fb++; 
-		}
+	if (y0 >= (int)y_val[1] && !fb){
+	d1 = d2;
+	x1 = x_val[1];
+	fb++; 
+	}
 	}
   */
   for (m = 0; m < 3; m++){
     for (n = m + 1; n < 3; n++){
       if (x_val[m] < x_val[n]){
-	tmp = y_val[m];
-	y_val[m] = y_val[n];
-	y_val[n] = tmp;
-	tmp = x_val[m];
-	x_val[m] = x_val[n];
-	x_val[n] = tmp;
+				tmp = y_val[m];
+				y_val[m] = y_val[n];
+				y_val[n] = tmp;
+				tmp = x_val[m];
+				x_val[m] = x_val[n];
+				x_val[n] = tmp;
       }
     }
   }
+ 
+	y0 = y_val[2]; //x bottom
+	y1 = y0;
+	x0 = x_val[2]; //y bottom
 
-  //printf("Reality: [%lf, %lf, %lf]\n", y_val[0], y_val[1], y_val[2]);
+	d0 = (y_val[0] - y_val[2]) / (x_val[0] - x_val[2]); //(xt - xb) / (yt - yb)
+	d1 = (y_val[1] - y_val[2]) / (x_val[1] - x_val[2]); //(xm - xb) / (ym - yb)
+	d2 = (y_val[0] - y_val[1]) / (x_val[0] - x_val[1]); //(xt - xm) / (yt - ym)
 
-	x0 = x_val[2]; //x bottom
-	x1 = x0;
-	y = y_val[2]; //y bottom
-
-	d0 = (x_val[0] - x_val[2]) / (y_val[0] - y_val[2]); //(xt - xb) / (yt - yb)
-	d1 = (x_val[1] - x_val[2]) / (y_val[1] - y_val[2]); //(xm - xb) / (ym - yb)
-	d2 = (x_val[0] - x_val[1]) / (y_val[0] - y_val[1]); //(xt - xm) / (yt - ym)
-
-	//printf("%lf\n%lf\n%lf\n", d0, d1, d2);
-	while ((int)y < (int)(y_val[0])){
+	while ((int)x0 < (int)(x_val[0])){
 	
-		printf("Drawing (%lf, %lf) to (%lf, %lf)\n", x0, y, x1, y);
-		draw_line(x0, y, x1, y, s, c);
+		//printf("Drawing (%lf, %lf) to (%lf, %lf)\n", x0, y0, x0, y1);
+		draw_line(x0, y0, x0, y1, s, c);
 
-		//printf("%d\t%d\n", (int)y, (int)y_val[1]);
-		y += 1;
-		x0 += d0;
-		x1 += d1;
+		x0 += 1;
+		y0 += d0;
+		y1 += d1;
 
-		if (y >= (int)y_val[1] && !fb){
+		if (x0 >= (int)x_val[1] && !fb){
 			d1 = d2;
-			x1 = x_val[1];
+			y1 = y_val[1];
 			fb++; 
 		}
 	}
@@ -166,7 +161,7 @@ void draw_polygons( struct matrix *polygons, screen s, color c ) {
 
 		if ( calculate_dot( polygons, i ) < 0 ) {
 			
-			c = change_color(i);
+			//c = change_color(i);
 			
 			draw_line( polygons->m[0][i],
 								 polygons->m[1][i],
@@ -183,9 +178,6 @@ void draw_polygons( struct matrix *polygons, screen s, color c ) {
 								 polygons->m[0][i],
 								 polygons->m[1][i],
 								 s, c);
-
-			//c.red = (c.red + 2 * i) % 255;
-			//c.blue = (5 + i) % 255;
 			fill(polygons, i, s, c);
 		}
 	}
