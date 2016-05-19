@@ -45,4 +45,5 @@ typedef struct point_t color;
 */
 typedef struct point_t screen[XRES][YRES];
 
+typedef double  z_buff[XRES][YRES];
 #endif

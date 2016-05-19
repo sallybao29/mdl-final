@@ -253,6 +253,8 @@ void my_main( int polygons ) {
   struct vary_node *vn;
   char frame_name[128];
 
+  z_buff zb;
+
   s = new_stack();
   tmp = new_matrix(4, 1000);
   clear_screen(t);
@@ -295,7 +297,7 @@ void my_main( int polygons ) {
 		    step);
 	//apply the current top origin
 	matrix_mult( s->data[ s->top ], tmp );
-	draw_polygons( tmp, t, g );
+	draw_polygons( tmp, t, g , zb );
 	tmp->lastcol = 0;
 	break;
 
@@ -306,8 +308,8 @@ void my_main( int polygons ) {
 		   op[i].op.torus.r0,
 		   op[i].op.torus.r1,
 		   step);
-	matrix_mult( s->data[ s->top ], tmp );
-	draw_polygons( tmp, t, g );
+	matrix_mult( s->data[ s->top ], tmp);
+	draw_polygons( tmp, t, g, zb );
 	tmp->lastcol = 0;
 	break;
 
@@ -319,7 +321,7 @@ void my_main( int polygons ) {
 		 op[i].op.box.d1[1],
 		 op[i].op.box.d1[2]);
 	matrix_mult( s->data[ s->top ], tmp );
-	draw_polygons( tmp, t, g );
+	draw_polygons( tmp, t, g, zb );
 	tmp->lastcol = 0;
 	break;
 
@@ -330,7 +332,7 @@ void my_main( int polygons ) {
 		  op[i].op.line.p1[0],
 		  op[i].op.line.p1[1],
 		  op[i].op.line.p1[1]);
-	draw_lines( tmp, t, g );
+	draw_lines( tmp, t, g, zb );
 	tmp->lastcol = 0;
 	break;
 
