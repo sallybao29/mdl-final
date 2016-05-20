@@ -48,112 +48,114 @@ void add_polygon( struct matrix *polygons,
 
   ====================*/
 void fill( struct matrix *points, int i, screen s, color c, z_buff zb){
-	// rows -> x, y, z
-	// cols -> top, middle, bottom
-	double p[3][3]; 
-	double tmp;
-	double d0, d1, d2;
-	double x0, x1, y0, y1, z0, z1;
-	double dz0, dz1, dz2;
-	int m, n, l;
-	int fb = 0;
+  // rows -> x, y, z
+  double p[3][3]; 
+  double tmp;
+  double d0, d1, d2;
+  double x0, x1, y0, y1, z0, z1;
+  double dz0, dz1, dz2;
+  int m, n, l;
+  int fb = 0;
+  int TOP = 0,
+    MID = 1,
+    BOT = 2;
 
-	for (m = 0; m < 3; m++)
-		for (n = 0; n < 3; n++)
-			p[m][n] = points -> m[m][n + i];
+  for (m = 0; m < 3; m++)
+    for (n = 0; n < 3; n++)
+      p[m][n] = points -> m[m][n + i];
 
-	/*
-	//sort out top, middle, and bottom
-	for (m = 0; m < 3; m++){
-	for (n = m + 1; n < 3; n++){
-	if (y_val[m] < y_val[n]){
-	tmp = y_val[m];
-	y_val[m] = y_val[n];
-	y_val[n] = tmp;
-	tmp = x_val[m];
-	x_val[m] = x_val[n];
-	x_val[n] = tmp;
-	}
-	}
-	}
-	//printf("Reality: [%lf, %lf, %lf]\n", y_val[0], y_val[1], y_val[2]);
+  /*
+  //sort out top, middle, and bottom
+  for (m = 0; m < 3; m++){
+  for (n = m + 1; n < 3; n++){
+  if (y_val[m] < y_val[n]){
+  tmp = y_val[m];
+  y_val[m] = y_val[n];
+  y_val[n] = tmp;
+  tmp = x_val[m];
+  x_val[m] = x_val[n];
+  x_val[n] = tmp;
+  }
+  }
+  }
+  //printf("Reality: [%lf, %lf, %lf]\n", y_val[0], y_val[1], y_val[2]);
 
-	x0 = x_val[2]; //x bottom
-	x1 = x0;
-	y0 = y_val[2]; //y bottom
+  x0 = x_val[2]; //x bottom
+  x1 = x0;
+  y0 = y_val[2]; //y bottom
 
-	d0 = (x_val[0] - x_val[2]) / (y_val[0] - y_val[2]); //(xt - xb) / (yt - yb)
-	d1 = (x_val[1] - x_val[2]) / (y_val[1] - y_val[2]); //(xm - xb) / (ym - yb)
-	d2 = (x_val[0] - x_val[1]) / (y_val[0] - y_val[1]); //(xt - xm) / (yt - ym)
+  d0 = (x_val[0] - x_val[2]) / (y_val[0] - y_val[2]); //(xt - xb) / (yt - yb)
+  d1 = (x_val[1] - x_val[2]) / (y_val[1] - y_val[2]); //(xm - xb) / (ym - yb)
+  d2 = (x_val[0] - x_val[1]) / (y_val[0] - y_val[1]); //(xt - xm) / (yt - ym)
 
-	//printf("%lf\n%lf\n%lf\n", d0, d1, d2);
-	while ((int)y0 < (int)(y_val[0])){
+  //printf("%lf\n%lf\n%lf\n", d0, d1, d2);
+  while ((int)y0 < (int)(y_val[0])){
 	
-	printf("Drawing (%lf, %lf) to (%lf, %lf)\n", x0, y0, x1, y0);
-	draw_line(x0, y0, x1, y0, s, c);
+  printf("Drawing (%lf, %lf) to (%lf, %lf)\n", x0, y0, x1, y0);
+  draw_line(x0, y0, x1, y0, s, c);
 
-	//printf("%d\t%d\n", (int)y, (int)y_val[1]);
-	y0 += 1;
-	x0 += d0;
-	x1 += d1;
+  //printf("%d\t%d\n", (int)y, (int)y_val[1]);
+  y0 += 1;
+  x0 += d0;
+  x1 += d1;
 
-	if (y0 >= (int)y_val[1] && !fb){
-	d1 = d2;
-	x1 = x_val[1];
-	fb++; 
+  if (y0 >= (int)y_val[1] && !fb){
+  d1 = d2;
+  x1 = x_val[1];
+  fb++; 
+  }
+  }
+  */
+  for (m = 0; m < 3; m++){
+    for (n = m + 1; n < 3; n++){
+      if (p[0][m] < p[0][n]){
+	for (l = 0; l < 3; l++){
+	  tmp = p[l][m];
+	  p[l][m]= p[l][n];
+	  p[l][n] = tmp;
 	}
-	}
-	*/
-	for (m = 0; m < 3; m++){
-		for (n = m + 1; n < 3; n++){
-			if (p[0][m] < p[0][n]){
-				for (l = 0; l < 3; l++){
-					tmp = p[l][m];
-					p[l][m]= p[l][n];
-					p[l][n] = tmp;
-				}
-			}
-		}
-	}
+      }
+    }
+  }
  
-	y0 = p[1][2]; //y bottom
-	y1 = y0;
-	x0 = p[0][2]; //x bottom
-	z0 = p[2][2];
-	z1 = z0;
+  y0 = p[1][BOT]; //y bottom
+  y1 = y0;
+  x0 = p[0][BOT]; //x bottom
+  z0 = p[2][BOT];
+  z1 = z0;
 
-	d0 = (p[1][0] - p[1][2]) / (p[0][0] - p[0][2]); //(yt - yb) / (xt - xb)
-	d1 = (p[1][1] - p[1][2]) / (p[0][1] - p[0][2]); //(ym - yb) / (xm - xb)
-	d2 = (p[1][0] - p[1][1]) / (p[0][0] - p[0][1]); //(yt - ym) / (xt - xm)
+  d0 = (p[1][TOP] - p[1][BOT]) / (p[0][TOP] - p[0][BOT]); //(yt-yb)/(xt-xb)
+  d1 = (p[1][MID] - p[1][BOT]) / (p[0][MID] - p[0][BOT]); //(ym-yb)/(xm-xb)
+  d2 = (p[1][TOP] - p[1][MID]) / (p[0][TOP] - p[0][MID]); //(yt-ym)/(xt-xm)
 
-	//delta z / distance top to bottom
-	dz0 = (p[2][0] - p[2][2]) / distance(p[0][0], p[1][0], p[0][2], p[1][2]);
+  //delta z / distance top to bottom
+  dz0 = (p[2][TOP] - p[2][BOT]) / distance(p[0][TOP], p[1][TOP], p[0][BOT], p[1][BOT]);
 
-	//delta z / distance middle to bottom
-	dz1 = (p[2][0] - p[2][2]) / distance(p[0][1], p[1][1], p[0][2], p[1][2]);
+  //delta z / distance middle to bottom
+  dz1 = (p[2][TOP] - p[2][BOT]) / distance(p[0][MID], p[1][MID], p[0][BOT], p[1][BOT]);
 
-	//delta z / distance top to middle
-	dz2 = (p[2][0] - p[2][2]) / distance(p[0][0], p[1][0], p[0][1], p[1][1]);	
+  //delta z / distance top to middle
+  dz2 = (p[2][TOP] - p[2][BOT]) / distance(p[0][TOP], p[1][TOP], p[0][MID], p[1][MID]);	
 
-	while ((int)x0 < (int)(p[0][0])){
+  while ((int)x0 < (int)(p[0][TOP])){
 	
-		//printf("Drawing (%lf, %lf) to (%lf, %lf)\n", x0, y0, x0, y1);
-		draw_line(x0, y0, z0, x0, y1, z1, s, c, zb);
+    //printf("Drawing (%lf, %lf) to (%lf, %lf)\n", x0, y0, x0, y1);
+    draw_line(x0, y0, z0, x0, y1, z1, s, c, zb);
 
-		x0 += 1;
-		y0 += d0;
-		y1 += d1;
-		z0 += dz0;
-		z1 += dz1;
+    x0 += 1;
+    y0 += d0;
+    y1 += d1;
+    z0 += dz0;
+    z1 += dz1;
 
-		if (x0 >= (int)p[0][1] && !fb){
-			d1 = d2;
-			dz1 = dz2;
-			y1 = p[1][1];
-			z1 = p[2][1];
-			fb++; 
-		}
-	}
+    if (x0 >= (int)p[0][MID] && !fb){
+      d1 = d2;
+      dz1 = dz2;
+      y1 = p[1][MID];
+      z1 = p[2][MID];
+      fb++; 
+    }
+  }
 }
 
 /*======== void draw_polygons() ==========
