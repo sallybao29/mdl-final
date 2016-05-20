@@ -9,6 +9,7 @@ for red, green and blue respectively
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <limits.h>
 
 #include "ml6.h"
 #include "display.h"
@@ -77,130 +78,149 @@ jdyrlandweaver
 ====================*/
 void plot( screen s, color c, z_buff zb, int x, int y, double z) {
   int newy = YRES - 1 - y;
-  if ( x >= 0 && x < XRES && newy >=0 && newy < YRES ){
-    if (z > zb[x][newy]
-    s[x][newy] = c;
-  }
+  if ( x >= 0 && x < XRES && newy >=0 && newy < YRES && z > zb[x][newy]
+			 ){
+		
+		zb[x][newy] = z;
+		s[x][newy] = c;
+	}
+}
+
+/*======== void init_z_buff() ==========
+	Inputs:   z_buff zb
+	Returns: 
+	Sets every value in zbuff zb to LONG_MIN
+
+	05/19/16
+	S
+	====================*/
+void init_z_buff( z_buff zb ) {
+
+	int x, y;
+
+	for ( y=0; y < YRES; y++ )
+		for ( x=0; x < XRES; x++)      
+			zb[x][y] = LONG_MIN;
 }
 
 /*======== void clear_screen() ==========
-Inputs:   screen s  
-Returns: 
-Sets every color in screen s to black
+	Inputs:   screen s  
+	Returns: 
+	Sets every color in screen s to black
 
-02/12/10 09:13:40
-jdyrlandweaver
-====================*/
+	02/12/10 09:13:40
+	jdyrlandweaver
+	====================*/
 void clear_screen( screen s ) {
 
-  int x, y;
-  color c;
+	int x, y;
+	color c;
 
-  c.red = 0;
-  c.green = 0;
-  c.blue = 0;
+	c.red = 0;
+	c.green = 0;
+	c.blue = 0;
 
-  for ( y=0; y < YRES; y++ )
-    for ( x=0; x < XRES; x++)      
-      s[x][y] = c;
+	for ( y=0; y < YRES; y++ )
+		for ( x=0; x < XRES; x++)      
+			s[x][y] = c;
 }
 
 /*======== void save_ppm() ==========
-Inputs:   screen s
-         char *file 
-Returns: 
-Saves screen s as a valid ppm file using the
-settings in ml6.h
+	Inputs:   screen s
+	char *file 
+	Returns: 
+	Saves screen s as a valid ppm file using the
+	settings in ml6.h
 
-02/12/10 09:14:07
-jdyrlandweaver
-====================*/
+	02/12/10 09:14:07
+	jdyrlandweaver
+	====================*/
 void save_ppm( screen s, char *file) {
 
-  int x, y;
-  FILE *f;
+	int x, y;
+	FILE *f;
   
-  f = fopen(file, "w");
-  fprintf(f, "P3\n%d %d\n%d\n", XRES, YRES, MAX_COLOR);
-  for ( y=0; y < YRES; y++ ) {
-    for ( x=0; x < XRES; x++) 
+	f = fopen(file, "w");
+	fprintf(f, "P3\n%d %d\n%d\n", XRES, YRES, MAX_COLOR);
+	for ( y=0; y < YRES; y++ ) {
+		for ( x=0; x < XRES; x++) 
       
-      fprintf(f, "%d %d %d ", s[x][y].red, s[x][y].green, s[x][y].blue);
-    fprintf(f, "\n");
-  }
-  fclose(f);
+			fprintf(f, "%d %d %d ", s[x][y].red, s[x][y].green, s[x][y].blue);
+		fprintf(f, "\n");
+	}
+	fclose(f);
 }
  
 /*======== void save_extension() ==========
-Inputs:   screen s
-         char *file 
-Returns: 
-Saves the screen stored in s to the filename represented
-by file. 
-If the extension for file is an image format supported
-by the "convert" command, the image will be saved in
-that format.
+	Inputs:   screen s
+	char *file 
+	Returns: 
+	Saves the screen stored in s to the filename represented
+	by file. 
+	If the extension for file is an image format supported
+	by the "convert" command, the image will be saved in
+	that format.
 
-02/12/10 09:14:46
-jdyrlandweaver
-====================*/
+	02/12/10 09:14:46
+	jdyrlandweaver
+	====================*/
 void save_extension( screen s, char *file) {
   
-  int x, y;
-  FILE *f;
-  char line[256];
+	int x, y;
+	FILE *f;
+	char line[256];
 
-  sprintf(line, "convert - %s", file);
+	sprintf(line, "convert - %s", file);
 
-  f = popen(line, "w");
-  fprintf(f, "P3\n%d %d\n%d\n", XRES, YRES, MAX_COLOR);
-  for ( y=0; y < YRES; y++ ) {
-    for ( x=0; x < XRES; x++) 
+	f = popen(line, "w");
+	fprintf(f, "P3\n%d %d\n%d\n", XRES, YRES, MAX_COLOR);
+	for ( y=0; y < YRES; y++ ) {
+		for ( x=0; x < XRES; x++) 
       
-      fprintf(f, "%d %d %d ", s[x][y].red, s[x][y].green, s[x][y].blue);
-    fprintf(f, "\n");
-  }
-  pclose(f);
+			fprintf(f, "%d %d %d ", s[x][y].red, s[x][y].green, s[x][y].blue);
+		fprintf(f, "\n");
+	}
+	pclose(f);
 }
 
 
 /*======== void display() ==========
-Inputs:   screen s 
-Returns: 
-Will display the screen s on your monitor
+	Inputs:   screen s 
+	Returns: 
+	Will display the screen s on your monitor
 
-02/12/10 09:16:30
-jdyrlandweaver
-====================*/
+	02/12/10 09:16:30
+	jdyrlandweaver
+	====================*/
 void display( screen s) {
-   int x, i;
-  char *fname = ".tmp.png";
-  save_extension(s, fname);
-  i = fork();
-  if (i == 0) {
-    execlp("display", "display", fname, NULL);
-  }
-  else {
-    wait(&x);
-    remove( fname );
-  }
-  /* For some reason, this refuses to run correctly
-     on some systems. Most likely a strange imagemagick
-     install issue. 
-     Above is a workaroudn for now.
-  int x, y;
-  FILE *f;
+	int x, i;
+	char *fname = ".tmp.png";
+	save_extension(s, fname);
+	i = fork();
+	if (i == 0) {
+		execlp("display", "display", fname, NULL);
+	}
+	else {
+		wait(&x);
+		remove( fname );
+	}
+	/* For some reason, this refuses to run correctly
+		 on some systems. Most likely a strange imagemagick
+		 install issue. 
+		 Above is a workaroudn for now.
+		 int x, y;
+		 FILE *f;
 
-  f = popen("display", "w");
+		 f = popen("display", "w");
 
-  fprintf(f, "P3\n%d %d\n%d\n", XRES, YRES, MAX_COLOR);
-  for ( y=0; y < YRES; y++ ) {
-    for ( x=0; x < XRES; x++) 
+		 fprintf(f, "P3\n%d %d\n%d\n", XRES, YRES, MAX_COLOR);
+		 for ( y=0; y < YRES; y++ ) {
+		 for ( x=0; x < XRES; x++) 
       
-      fprintf(f, "%d %d %d ", s[x][y].red, s[x][y].green, s[x][y].blue);
-    fprintf(f, "\n");
-  }
-  pclose(f);
-  */
-}
+		 fprintf(f, "%d %d %d ", s[x][y].red, s[x][y].green, s[x][y].blue);
+		 fprintf(f, "\n");
+			 }
+			 pclose(f);
+		*/
+	}
 

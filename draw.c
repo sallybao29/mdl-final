@@ -47,36 +47,36 @@ void add_polygon( struct matrix *polygons,
   05/13/16 13:13:27
 
   ====================*/
-void fill( struct matrix *points, int i, screen s, color c,  z_buff zb){
-  double x_val[3], y_val[3]; //top -> mid -> bottom
-  double tmp;
-  double d0, d1, d2;
-  double x0, x1, y0, y1;
-  int m, n;
-  int fb = 0;
+void fill( struct matrix *points, int i, screen s, color c, z_buff zb){
+	// rows -> x, y, z
+	// cols -> top, middle, bottom
+	double p[3][3]; 
+	double tmp;
+	double d0, d1, d2;
+	double x0, x1, y0, y1, z0, z1;
+	double dz0, dz1, dz2;
+	int m, n, l;
+	int fb = 0;
 
-  x_val[0] = points -> m[0][i];
-  x_val[1] = points -> m[0][i + 1];
-  x_val[2] = points -> m[0][i + 2];
+	for (m = 0; m < 3; m++)
+		for (n = 0; n < 3; n++)
+			p[m][n] = points -> m[m][n + i];
 
-  y_val[0] = points -> m[1][i];
-  y_val[1] = points -> m[1][i + 1];
-  y_val[2] = points -> m[1][i + 2];
-  /*
-  //sort out top, middle, and bottom
-  for (m = 0; m < 3; m++){
-    for (n = m + 1; n < 3; n++){
-      if (y_val[m] < y_val[n]){
+	/*
+	//sort out top, middle, and bottom
+	for (m = 0; m < 3; m++){
+	for (n = m + 1; n < 3; n++){
+	if (y_val[m] < y_val[n]){
 	tmp = y_val[m];
 	y_val[m] = y_val[n];
 	y_val[n] = tmp;
 	tmp = x_val[m];
 	x_val[m] = x_val[n];
 	x_val[n] = tmp;
-      }
-    }
-  }
-  //printf("Reality: [%lf, %lf, %lf]\n", y_val[0], y_val[1], y_val[2]);
+	}
+	}
+	}
+	//printf("Reality: [%lf, %lf, %lf]\n", y_val[0], y_val[1], y_val[2]);
 
 	x0 = x_val[2]; //x bottom
 	x1 = x0;
@@ -103,40 +103,54 @@ void fill( struct matrix *points, int i, screen s, color c,  z_buff zb){
 	fb++; 
 	}
 	}
-  */
-  for (m = 0; m < 3; m++){
-    for (n = m + 1; n < 3; n++){
-      if (x_val[m] < x_val[n]){
-				tmp = y_val[m];
-				y_val[m] = y_val[n];
-				y_val[n] = tmp;
-				tmp = x_val[m];
-				x_val[m] = x_val[n];
-				x_val[n] = tmp;
-      }
-    }
-  }
+	*/
+	for (m = 0; m < 3; m++){
+		for (n = m + 1; n < 3; n++){
+			if (p[0][m] < p[0][n]){
+				for (l = 0; l < 3; l++){
+					tmp = p[l][m];
+					p[l][m]= p[l][n];
+					p[l][n] = tmp;
+				}
+			}
+		}
+	}
  
-	y0 = y_val[2]; //x bottom
+	y0 = p[1][2]; //y bottom
 	y1 = y0;
-	x0 = x_val[2]; //y bottom
+	x0 = p[0][2]; //x bottom
+	z0 = p[2][2];
+	z1 = z0;
 
-	d0 = (y_val[0] - y_val[2]) / (x_val[0] - x_val[2]); //(xt - xb) / (yt - yb)
-	d1 = (y_val[1] - y_val[2]) / (x_val[1] - x_val[2]); //(xm - xb) / (ym - yb)
-	d2 = (y_val[0] - y_val[1]) / (x_val[0] - x_val[1]); //(xt - xm) / (yt - ym)
+	d0 = (p[1][0] - p[1][2]) / (p[0][0] - p[0][2]); //(yt - yb) / (xt - xb)
+	d1 = (p[1][1] - p[1][2]) / (p[0][1] - p[0][2]); //(ym - yb) / (xm - xb)
+	d2 = (p[1][0] - p[1][1]) / (p[0][0] - p[0][1]); //(yt - ym) / (xt - xm)
 
-	while ((int)x0 < (int)(x_val[0])){
+	//delta z / distance top to bottom
+	dz0 = (p[2][0] - p[2][2]) / distance(p[0][0], p[1][0], p[0][2], p[1][2]);
+
+	//delta z / distance middle to bottom
+	dz1 = (p[2][0] - p[2][2]) / distance(p[0][1], p[1][1], p[0][2], p[1][2]);
+
+	//delta z / distance top to middle
+	dz2 = (p[2][0] - p[2][2]) / distance(p[0][0], p[1][0], p[0][1], p[1][1]);	
+
+	while ((int)x0 < (int)(p[0][0])){
 	
 		//printf("Drawing (%lf, %lf) to (%lf, %lf)\n", x0, y0, x0, y1);
-	  draw_line(x0, y0, 0, x0, y1, 0, s, c, zb);
+		draw_line(x0, y0, z0, x0, y1, z1, s, c, zb);
 
 		x0 += 1;
 		y0 += d0;
 		y1 += d1;
+		z0 += dz0;
+		z1 += dz1;
 
-		if (x0 >= (int)x_val[1] && !fb){
+		if (x0 >= (int)p[0][1] && !fb){
 			d1 = d2;
-			y1 = y_val[1];
+			dz1 = dz2;
+			y1 = p[1][1];
+			z1 = p[2][1];
 			fb++; 
 		}
 	}
@@ -156,37 +170,37 @@ void fill( struct matrix *points, int i, screen s, color c,  z_buff zb){
 	====================*/
 void draw_polygons( struct matrix *polygons, screen s, color c, z_buff zb ) {
   
-  int i;
-  for( i=0; i < polygons->lastcol-2; i+=3 ) {
+	int i;
+	for( i=0; i < polygons->lastcol-2; i+=3 ) {
 
-    if ( calculate_dot( polygons, i ) < 0 ) {
+		if ( calculate_dot( polygons, i ) < 0 ) {
 			
-      //c = change_color(i);
+			c = change_color(i);
 			
-      draw_line( polygons->m[0][i],
-		 polygons->m[1][i],
-		 polygons->m[2][i],
-		 polygons->m[0][i+1],
-		 polygons->m[1][i+1],
-		 polygons->m[2][i+1],
-		 s, c, zb);
-      draw_line( polygons->m[0][i+1],
-		 polygons->m[1][i+1],
-		 polygons->m[2][i],
-		 polygons->m[0][i+2],
-		 polygons->m[1][i+2],
-		 polygons->m[2][i+1],
-		 s, c, zb);
-      draw_line( polygons->m[0][i+2],
-		 polygons->m[1][i+2],
-		 polygons->m[2][i],
-		 polygons->m[0][i],
-		 polygons->m[1][i],
-		 polygons->m[2][i+1],
-		 s, c, zb);
-      fill(polygons, i, s, c, zb);
-    }
-  }
+			draw_line( polygons->m[0][i],
+								 polygons->m[1][i],
+								 polygons->m[2][i],
+								 polygons->m[0][i+1],
+								 polygons->m[1][i+1],
+								 polygons->m[2][i+1],
+								 s, c, zb);
+			draw_line( polygons->m[0][i+1],
+								 polygons->m[1][i+1],
+								 polygons->m[2][i],
+								 polygons->m[0][i+2],
+								 polygons->m[1][i+2],
+								 polygons->m[2][i+1],
+								 s, c, zb);
+			draw_line( polygons->m[0][i+2],
+								 polygons->m[1][i+2],
+								 polygons->m[2][i],
+								 polygons->m[0][i],
+								 polygons->m[1][i],
+								 polygons->m[2][i+1],
+								 s, c, zb);
+			fill(polygons, i, s, c, zb);
+		}
+	}
 }
 
 
@@ -695,22 +709,26 @@ void draw_line(int x0, int y0, double z0,
 	       screen s, color c, z_buff zb) {
 	//printf("Drawing the line\n");
 	int x, y, d, dx, dy;
-	double z;
+	double z, dz;
 
 	x = x0;
 	y = y0;
+	z = z0;
   
 	//swap points so we're always drawing left to right
 	if ( x0 > x1 ) {
 		x = x1;
 		y = y1;
+		z = z1;
 		x1 = x0;
 		y1 = y0;
+		z1 = z0;
 	}
 
 	//need to know dx and dy for this version
 	dx = (x1 - x) * 2;
 	dy = (y1 - y) * 2;
+	dz = (z1 - z) / distance(x, y, x1, y1);
 
 	//positive slope: Octants 1, 2 (5 and 6)
 	if ( dy > 0 ) {
@@ -720,15 +738,17 @@ void draw_line(int x0, int y0, double z0,
 			d = dy - ( dx / 2 );
   
 			while ( x <= x1 ) {
-			  plot(s, c, zb, x, y, z);
+				plot(s, c, zb, x, y, z);
 
 				if ( d < 0 ) {
 					x = x + 1;
+					z = z + dz;
 					d = d + dy;
 				}
 				else {
 					x = x + 1;
 					y = y + 1;
+					z = z + dz;
 					d = d + dy - dx;
 				}
 			}
@@ -739,14 +759,16 @@ void draw_line(int x0, int y0, double z0,
 			d = ( dy / 2 ) - dx;
 			while ( y <= y1 ) {
 
-			  plot(s, c, zb, x, y, z);
+				plot(s, c, zb, x, y, z);
 				if ( d > 0 ) {
 					y = y + 1;
+					z = z + dz;
 					d = d - dx;
 				}
 				else {
 					y = y + 1;
 					x = x + 1;
+					z = z + dz;
 					d = d + dy - dx;
 				}
 			}
@@ -763,15 +785,17 @@ void draw_line(int x0, int y0, double z0,
   
 			while ( x <= x1 ) {
 
-			  plot(s, c, zb, x, y, z);
+				plot(s, c, zb, x, y, z);
 
 				if ( d > 0 ) {
 					x = x + 1;
+					z = z + dz;
 					d = d + dy;
 				}
 				else {
 					x = x + 1;
 					y = y - 1;
+					z = z + dz;
 					d = d + dy + dx;
 				}
 			}
@@ -784,14 +808,16 @@ void draw_line(int x0, int y0, double z0,
 
 			while ( y >= y1 ) {
 	
-			  plot(s, c, zb, x, y, z);
+				plot(s, c, zb, x, y, z);
 				if ( d < 0 ) {
 					y = y - 1;
+					z = z + dz;
 					d = d + dx;
 				}
 				else {
 					y = y - 1;
 					x = x + 1;
+					z = z + dz;
 					d = d + dy + dx;
 				}
 			}

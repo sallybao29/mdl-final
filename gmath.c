@@ -77,3 +77,11 @@ double calculate_dot( struct matrix *points, int i ) {
   free(normal);  
   return dot;
 }
+
+double distance(double x0, double y0, double x1, double y1){
+	double a, b;
+
+	a = pow((x1 - x0), 2);
+	b = pow((y1 - y0), 2);
+	return sqrt(a + b);
+}
