@@ -56,106 +56,117 @@ void fill( struct matrix *points, int i, screen s, color c, z_buff zb){
   double dz0, dz1, dz2;
   int m, n, l;
   int fb = 0;
-  int TOP = 0,
-    MID = 1,
-    BOT = 2;
+  int TOP = 0, MID = 1, BOT = 2;
 
   for (m = 0; m < 3; m++)
     for (n = 0; n < 3; n++)
       p[m][n] = points -> m[m][n + i];
 
-  /*
-  //sort out top, middle, and bottom
-  for (m = 0; m < 3; m++){
-  for (n = m + 1; n < 3; n++){
-  if (y_val[m] < y_val[n]){
-  tmp = y_val[m];
-  y_val[m] = y_val[n];
-  y_val[n] = tmp;
-  tmp = x_val[m];
-  x_val[m] = x_val[n];
-  x_val[n] = tmp;
-  }
-  }
-  }
-  //printf("Reality: [%lf, %lf, %lf]\n", y_val[0], y_val[1], y_val[2]);
-
-  x0 = x_val[2]; //x bottom
-  x1 = x0;
-  y0 = y_val[2]; //y bottom
-
-  d0 = (x_val[0] - x_val[2]) / (y_val[0] - y_val[2]); //(xt - xb) / (yt - yb)
-  d1 = (x_val[1] - x_val[2]) / (y_val[1] - y_val[2]); //(xm - xb) / (ym - yb)
-  d2 = (x_val[0] - x_val[1]) / (y_val[0] - y_val[1]); //(xt - xm) / (yt - ym)
-
-  //printf("%lf\n%lf\n%lf\n", d0, d1, d2);
-  while ((int)y0 < (int)(y_val[0])){
-	
-  printf("Drawing (%lf, %lf) to (%lf, %lf)\n", x0, y0, x1, y0);
-  draw_line(x0, y0, x1, y0, s, c);
-
-  //printf("%d\t%d\n", (int)y, (int)y_val[1]);
-  y0 += 1;
-  x0 += d0;
-  x1 += d1;
-
-  if (y0 >= (int)y_val[1] && !fb){
-  d1 = d2;
-  x1 = x_val[1];
-  fb++; 
-  }
-  }
-  */
-  for (m = 0; m < 3; m++){
+	/*------------------------------ Horizontal Scanline ------------------------------------*/
+	for (m = 0; m < 3; m++){
     for (n = m + 1; n < 3; n++){
-      if (p[0][m] < p[0][n]){
-	for (l = 0; l < 3; l++){
-	  tmp = p[l][m];
-	  p[l][m]= p[l][n];
-	  p[l][n] = tmp;
-	}
+      if (p[1][m] < p[1][n]){
+				for (l = 0; l < 3; l++){
+					tmp = p[l][m];
+					p[l][m]= p[l][n];
+					p[l][n] = tmp;
+				}
       }
     }
   }
  
-  y0 = p[1][BOT]; //y bottom
-  y1 = y0;
-  x0 = p[0][BOT]; //x bottom
-  z0 = p[2][BOT];
+  y0 = p[1][BOT];
+  x0 = p[0][BOT];
+	x1 = x0;
+	z0 = p[2][BOT];
   z1 = z0;
 
-  d0 = (p[1][TOP] - p[1][BOT]) / (p[0][TOP] - p[0][BOT]); //(yt-yb)/(xt-xb)
-  d1 = (p[1][MID] - p[1][BOT]) / (p[0][MID] - p[0][BOT]); //(ym-yb)/(xm-xb)
-  d2 = (p[1][TOP] - p[1][MID]) / (p[0][TOP] - p[0][MID]); //(yt-ym)/(xt-xm)
+  d0 = (p[0][TOP] - p[0][BOT]) / (p[1][TOP] - p[1][BOT]); //(yt-yb)/(xt-xb)
+  d1 = (p[0][MID] - p[0][BOT]) / (p[1][MID] - p[1][BOT]); //(ym-yb)/(xm-xb)
+  d2 = (p[0][TOP] - p[0][MID]) / (p[1][TOP] - p[1][MID]); //(yt-ym)/(xt-xm)
 
   //delta z / distance top to bottom
-  dz0 = (p[2][TOP] - p[2][BOT]) / distance(p[0][TOP], p[1][TOP], p[0][BOT], p[1][BOT]);
+  dz0 = (p[2][TOP] - p[2][BOT]) / distance(p[0][TOP], p[1][TOP],
+																					 p[0][BOT], p[1][BOT]);
 
   //delta z / distance middle to bottom
-  dz1 = (p[2][TOP] - p[2][BOT]) / distance(p[0][MID], p[1][MID], p[0][BOT], p[1][BOT]);
+  dz1 = (p[2][MID] - p[2][BOT]) / distance(p[0][MID], p[1][MID], p[0][BOT], p[1][BOT]);
 
   //delta z / distance top to middle
-  dz2 = (p[2][TOP] - p[2][BOT]) / distance(p[0][TOP], p[1][TOP], p[0][MID], p[1][MID]);	
+  dz2 = (p[2][TOP] - p[2][MID]) / distance(p[0][TOP], p[1][TOP], p[0][MID], p[1][MID]);	
 
-  while ((int)x0 < (int)(p[0][TOP])){
+	while ((int)y0 < (int)(p[1][TOP])){
 	
-    //printf("Drawing (%lf, %lf) to (%lf, %lf)\n", x0, y0, x0, y1);
-    draw_line(x0, y0, z0, x0, y1, z1, s, c, zb);
+		//printf("Drawing (%lf, %lf) to (%lf, %lf)\n", x0, y0, x0, y1);
+		draw_line(x0, y0, z0, x1, y0, z1, s, c, zb);
 
-    x0 += 1;
-    y0 += d0;
-    y1 += d1;
-    z0 += dz0;
-    z1 += dz1;
+		y0 += 1;
+		x0 += d0;
+		x1 += d1;
+		z0 += dz0;
+		z1 += dz1;
 
-    if (x0 >= (int)p[0][MID] && !fb){
-      d1 = d2;
-      dz1 = dz2;
-      y1 = p[1][MID];
-      z1 = p[2][MID];
-      fb++; 
-    }
-  }
+		if (y0 >= (int)p[1][MID] && !fb){
+			d1 = d2;
+			dz1 = dz2;
+			x1 = p[0][MID];
+			z1 = p[2][MID];
+			fb++; 
+		}
+	}
+	/*------------------------------ Vertical Scanline ------------------------------------*/
+	fb = 0;
+	
+	for (m = 0; m < 3; m++){
+		for (n = m + 1; n < 3; n++){
+			if (p[0][m] < p[0][n]){
+				for (l = 0; l < 3; l++){
+					tmp = p[l][m];
+					p[l][m]= p[l][n];
+					p[l][n] = tmp;
+				}
+			}
+		}
+	}
+ 
+	y0 = p[1][BOT]; 
+	y1 = y0;
+	x0 = p[0][BOT]; 
+	z0 = p[2][BOT];
+	z1 = z0;
+
+	d0 = (p[1][TOP] - p[1][BOT]) / (p[0][TOP] - p[0][BOT]); //(yt-yb)/(xt-xb)
+	d1 = (p[1][MID] - p[1][BOT]) / (p[0][MID] - p[0][BOT]); //(ym-yb)/(xm-xb)
+	d2 = (p[1][TOP] - p[1][MID]) / (p[0][TOP] - p[0][MID]); //(yt-ym)/(xt-xm)
+
+	//delta z / distance top to bottom
+	dz0 = (p[2][TOP] - p[2][BOT]) / distance(p[0][TOP], p[1][TOP], p[0][BOT], p[1][BOT]);
+
+	//delta z / distance middle to bottom
+	dz1 = (p[2][MID] - p[2][BOT]) / distance(p[0][MID], p[1][MID], p[0][BOT], p[1][BOT]);
+
+	//delta z / distance top to middle
+	dz2 = (p[2][TOP] - p[2][MID]) / distance(p[0][TOP], p[1][TOP], p[0][MID], p[1][MID]);	
+
+	while ((int)x0 < (int)(p[0][TOP])){
+	
+		//printf("Drawing (%lf, %lf) to (%lf, %lf)\n", x0, y0, x0, y1);
+		draw_line(x0, y0, z0, x0, y1, z1, s, c, zb);
+
+		x0 += 1;
+		y0 += d0;
+		y1 += d1;
+		z0 += dz0;
+		z1 += dz1;
+
+		if (x0 >= (int)p[0][MID] && !fb){
+			d1 = d2;
+			dz1 = dz2;
+			y1 = p[1][MID];
+			z1 = p[2][MID];
+			fb++; 
+		}
+	}
 }
 
 /*======== void draw_polygons() ==========
@@ -280,55 +291,55 @@ void add_sphere( struct matrix * points,
 			if (longt != 0)
 				add_polygon( points, px0, py0, pz0, px1, py1, pz1, px2, py2, pz2 );
 			if (longt != longStop - 1)
-				add_polygon( points, px2, py2, pz2, px3, py3, pz3, px0, py0, pz0 );
+					add_polygon( points, px2, py2, pz2, px3, py3, pz3, px0, py0, pz0 );
+			}
 		}
 	}
-}
 
-/*======== void generate_sphere() ==========
-	Inputs:   struct matrix * points
-	double cx
-	double cy
-	double r
-	double step  
-	Returns: 
+	/*======== void generate_sphere() ==========
+		Inputs:   struct matrix * points
+		double cx
+		double cy
+		double r
+		double step  
+		Returns: 
 
-	Generates all the points along the surface of a 
-	sphere with center (cx, cy) and radius r
+		Generates all the points along the surface of a 
+		sphere with center (cx, cy) and radius r
 
-	Adds these points to the matrix parameter
+		Adds these points to the matrix parameter
 
-	03/22/12 11:30:26
-	jdyrlandweaver
-	====================*/
-void generate_sphere( struct matrix * points, 
-											double cx, double cy, double cz, double r, 
-											int step ) {
+		03/22/12 11:30:26
+		jdyrlandweaver
+		====================*/
+	void generate_sphere( struct matrix * points, 
+												double cx, double cy, double cz, double r, 
+												int step ) {
 
 
-	int circle, rotation;
-	double x, y, z, circ, rot;
+		int circle, rotation;
+		double x, y, z, circ, rot;
 
-	int rotStart = step * 0;
-	int rotStop = MAX_STEPS;
-	int circStart = step * 0;
-	int circStop = MAX_STEPS;
+		int rotStart = step * 0;
+		int rotStop = MAX_STEPS;
+		int circStart = step * 0;
+		int circStop = MAX_STEPS;
   
-	for ( rotation = rotStart; rotation < rotStop; rotation += step ) {
-		rot = (double)rotation / MAX_STEPS;
-		for ( circle = circStart; circle <= circStop; circle+= step ) {
+		for ( rotation = rotStart; rotation < rotStop; rotation += step ) {
+			rot = (double)rotation / MAX_STEPS;
+			for ( circle = circStart; circle <= circStop; circle+= step ) {
 
-			circ = (double)circle / MAX_STEPS;
-			x = r * cos( M_PI * circ ) + cx;
-			y = r * sin( M_PI * circ ) *
-				cos( 2 * M_PI * rot ) + cy;
-			z = r * sin( M_PI * circ ) *
-				sin( 2 * M_PI * rot ) + cz;
+				circ = (double)circle / MAX_STEPS;
+				x = r * cos( M_PI * circ ) + cx;
+				y = r * sin( M_PI * circ ) *
+					cos( 2 * M_PI * rot ) + cy;
+				z = r * sin( M_PI * circ ) *
+					sin( 2 * M_PI * rot ) + cz;
 
-			add_point( points, x, y, z);
+				add_point( points, x, y, z);
+			}
 		}
-	}
-}    
+	}    
 
 
 /*======== void add_torus() ==========
@@ -706,13 +717,13 @@ void draw_lines( struct matrix * points, screen s, color c, z_buff zb) {
 }
 
 
-void draw_line(int x0, int y0, double z0, 
-	       int x1, int y1, double z1, 
-	       screen s, color c, z_buff zb) {
+void draw_line(int x0, int y0, int z0, 
+							 int x1, int y1, int z1, 
+							 screen s, color c, z_buff zb) {
 	//printf("Drawing the line\n");
 	int x, y, d, dx, dy;
 	double z, dz;
-
+	
 	x = x0;
 	y = y0;
 	z = z0;
@@ -745,6 +756,7 @@ void draw_line(int x0, int y0, double z0,
 				if ( d < 0 ) {
 					x = x + 1;
 					z = z + dz;
+
 					d = d + dy;
 				}
 				else {

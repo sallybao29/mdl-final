@@ -5,46 +5,46 @@
 
 #define MAX_STEPS 100
 
-void draw_line(int x0, int y0, double z0,
-	       int x1, int y1, double z1,
-	       screen s, color c, z_buff zb);
+void draw_line(int x0, int y0, int z0,
+							 int x1, int y1, int z1,
+							 screen s, color c, z_buff zb);
 void fill(struct matrix * points, int i, screen s, color c, z_buff zb);
 
 void add_point( struct matrix * points, 
-		 double x, double y, double z);
+								double x, double y, double z);
 void add_edge( struct matrix * points, 
-	       double x0, double y0, double z0, 
-	       double x1, double y1, double z1);
+							 double x0, double y0, double z0, 
+							 double x1, double y1, double z1);
 void add_polygon( struct matrix * points, 
-		  double x0, double y0, double z0, 
-		  double x1, double y1, double z1,
-		  double x2, double y2, double z2);
+									double x0, double y0, double z0, 
+									double x1, double y1, double z1,
+									double x2, double y2, double z2);
 void draw_lines( struct matrix * points, screen s, color c, z_buff zb);
 void draw_polygons( struct matrix * points, screen s, color c, z_buff zb);
 
 //advanced shapes
 void add_circle( struct matrix * points, 
-		 double cx, double cy, 
-		 double r, double step );
+								 double cx, double cy, 
+								 double r, double step );
 void add_curve( struct matrix *points, 
-		double x0, double y0,
-		double x1, double y1,
-		double x2, double y2,
-		double x3, double y3,
-		double step, int type );
+								double x0, double y0,
+								double x1, double y1,
+								double x2, double y2,
+								double x3, double y3,
+								double step, int type );
 void add_box( struct matrix *points,
-	      double x, double y, double z,
-	      double w, double h, double d);
+							double x, double y, double z,
+							double w, double h, double d);
 void add_sphere( struct matrix * points, 
-		 double cx, double cy, double cz, double r, 
-		 int step );
+								 double cx, double cy, double cz, double r, 
+								 int step );
 void generate_sphere( struct matrix * points, 
-		      double cx, double cy, double cz, double r, 
-			   int step );
+											double cx, double cy, double cz, double r, 
+											int step );
 void add_torus( struct matrix * points, 
-		double cx, double cy, double cz, double r1, double r2, 
-		     int step );
+								double cx, double cy, double cz, double r1, double r2, 
+								int step );
 void generate_torus( struct matrix * points, 
-		     double cx, double cy, double cz, double r1, double r2, 
-			   int step );
+										 double cx, double cy, double cz, double r1, double r2, 
+										 int step );
 #endif
