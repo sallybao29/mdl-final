@@ -83,5 +83,7 @@ double distance(double x0, double y0, double x1, double y1){
 
 	a = pow((x1 - x0), 2);
 	b = pow((y1 - y0), 2);
+	printf("a: %lf\n", a);
+	printf("b: %lf\n", b);
 	return sqrt(a + b);
 }

@@ -78,7 +78,7 @@ jdyrlandweaver
 ====================*/
 void plot( screen s, color c, z_buff zb, int x, int y, double z) {
   int newy = YRES - 1 - y;
-  if ( x >= 0 && x < XRES && newy >=0 && newy < YRES && z > zb[x][newy]
+  if ( x >= 0 && x < XRES && newy >=0 && newy < YRES && z >= zb[x][newy]
 			 ){
 		
     zb[x][newy] = z;

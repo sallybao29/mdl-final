@@ -183,37 +183,39 @@ void fill( struct matrix *points, int i, screen s, color c, z_buff zb){
 	====================*/
 void draw_polygons( struct matrix *polygons, screen s, color c, z_buff zb ) {
   
-	int i;
-	for( i=0; i < polygons->lastcol-2; i+=3 ) {
+  int i;
+  for( i=0; i < polygons->lastcol-2; i+=3 ) {
 
-		if ( calculate_dot( polygons, i ) < 0 ) {
+    if ( calculate_dot( polygons, i ) < 0 ) {
 			
-			c = change_color(i);
+      c = change_color(i);
+      fill(polygons, i, s, c, zb);
 			
-			draw_line( polygons->m[0][i],
-								 polygons->m[1][i],
-								 polygons->m[2][i],
-								 polygons->m[0][i+1],
-								 polygons->m[1][i+1],
-								 polygons->m[2][i+1],
-								 s, c, zb);
-			draw_line( polygons->m[0][i+1],
-								 polygons->m[1][i+1],
-								 polygons->m[2][i],
-								 polygons->m[0][i+2],
-								 polygons->m[1][i+2],
-								 polygons->m[2][i+1],
-								 s, c, zb);
-			draw_line( polygons->m[0][i+2],
-								 polygons->m[1][i+2],
-								 polygons->m[2][i],
-								 polygons->m[0][i],
-								 polygons->m[1][i],
-								 polygons->m[2][i+1],
-								 s, c, zb);
-			fill(polygons, i, s, c, zb);
-		}
-	}
+      draw_line( polygons->m[0][i],
+		 polygons->m[1][i],
+		 polygons->m[2][i],
+		 polygons->m[0][i+1],
+		 polygons->m[1][i+1],
+		 polygons->m[2][i+1],
+		 s, c, zb);
+      draw_line( polygons->m[0][i+1],
+		 polygons->m[1][i+1],
+		 polygons->m[2][i+1],
+		 polygons->m[0][i+2],
+		 polygons->m[1][i+2],
+		 polygons->m[2][i+2],
+		 s, c, zb);
+      draw_line( polygons->m[0][i+2],
+		 polygons->m[1][i+2],
+		 polygons->m[2][i+2],
+		 polygons->m[0][i],
+		 polygons->m[1][i],
+		 polygons->m[2][i],
+		 s, c, zb);
+			
+      //fill(polygons, i, s, c, zb);
+    }
+  }
 }
 
 
@@ -717,12 +719,15 @@ void draw_lines( struct matrix * points, screen s, color c, z_buff zb) {
 }
 
 
-void draw_line(int x0, int y0, int z0, 
-							 int x1, int y1, int z1, 
+void draw_line(int x0, int y0, double z0, 
+							 int x1, int y1, double z1, 
 							 screen s, color c, z_buff zb) {
 	//printf("Drawing the line\n");
 	int x, y, d, dx, dy;
 	double z, dz;
+
+	//printf("Actual [%lf, %lf]\n", z0, z1);
+	//printf("Casted [%d, %d]\n", (int)z0, (int)z1);
 	
 	x = x0;
 	y = y0;
