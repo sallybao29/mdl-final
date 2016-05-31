@@ -719,12 +719,14 @@ void draw_lines( struct matrix * points, screen s, color c, z_buff zb) {
 }
 
 
-void draw_line(int x0, int y0, double z0, 
-							 int x1, int y1, double z1, 
+void draw_line(int x0, int y0, int z0, 
+							 int x1, int y1, int z1, 
 							 screen s, color c, z_buff zb) {
 	//printf("Drawing the line\n");
 	int x, y, d, dx, dy;
-	double z, dz;
+	//double z, dz;
+	int z;
+	double dz;
 
 	//printf("Actual [%lf, %lf]\n", z0, z1);
 	//printf("Casted [%d, %d]\n", (int)z0, (int)z1);
