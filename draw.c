@@ -114,7 +114,7 @@ void fill( struct matrix *points, int i, screen s, color c, z_buff zb){
 			fb++; 
 		}
 	}
-	/*------------------------------ Vertical Scanline ------------------------------------*/
+	/*------------------------------ Vertical Scanline ------------------------------------*//*
 	fb = 0;
 	
 	for (m = 0; m < 3; m++){
@@ -167,6 +167,7 @@ void fill( struct matrix *points, int i, screen s, color c, z_buff zb){
 			fb++; 
 		}
 	}
+												 */
 }
 
 /*======== void draw_polygons() ==========
@@ -719,8 +720,8 @@ void draw_lines( struct matrix * points, screen s, color c, z_buff zb) {
 }
 
 
-void draw_line(int x0, int y0, int z0, 
-							 int x1, int y1, int z1, 
+void draw_line(int x0, int y0, double z0, 
+							 int x1, int y1, double z1, 
 							 screen s, color c, z_buff zb) {
 	//printf("Drawing the line\n");
 	int x, y, d, dx, dy;
@@ -748,7 +749,7 @@ void draw_line(int x0, int y0, int z0,
 	//need to know dx and dy for this version
 	dx = (x1 - x) * 2;
 	dy = (y1 - y) * 2;
-	dz = (z1 - z) / distance(x, y, x1, y1);
+	//dz = (z1 - z) / distance(x, y, x1, y1);
 
 	//positive slope: Octants 1, 2 (5 and 6)
 	if ( dy > 0 ) {
@@ -762,16 +763,17 @@ void draw_line(int x0, int y0, int z0,
 
 				if ( d < 0 ) {
 					x = x + 1;
-					z = z + dz;
+					//z = z + dz;
 
 					d = d + dy;
 				}
 				else {
 					x = x + 1;
 					y = y + 1;
-					z = z + dz;
+					//z = z + dz;
 					d = d + dy - dx;
 				}
+				z = z0 + ((double)x-x0)/(x1-x0)*(z1-z0);
 			}
 		}
 
@@ -792,6 +794,7 @@ void draw_line(int x0, int y0, int z0,
 					z = z + dz;
 					d = d + dy - dx;
 				}
+				z = z0 + ((double)y-y0)/(y1-y0)*(z1-z0);
 			}
 		}
 	}
@@ -819,6 +822,7 @@ void draw_line(int x0, int y0, int z0,
 					z = z + dz;
 					d = d + dy + dx;
 				}
+				z = z0 + ((double)x-x0)/(x1-x0)*(z1-z0);
 			}
 		}
 
@@ -841,6 +845,7 @@ void draw_line(int x0, int y0, int z0,
 					z = z + dz;
 					d = d + dy + dx;
 				}
+				z = z0 + ((double)y-y0)/(y1-y0)*(z1-z0);
 			}
 		}
 	}
