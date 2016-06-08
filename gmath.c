@@ -78,12 +78,61 @@ double calculate_dot( struct matrix *points, int i ) {
   return dot;
 }
 
+double dot_product(double* a, double* b){
+  double dot;
+
+  dot = a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+
+  return dot;
+}
+
 double distance(double x0, double y0, double x1, double y1){
 	double a, b;
 
 	a = pow((x1 - x0), 2);
 	b = pow((y1 - y0), 2);
-	//printf("a: %lf\n", a);
-	//printf("b: %lf\n", b);
 	return sqrt(a + b);
+}
+
+
+double get_ambient(int ca, double ka){
+  return ca * ka;
+}
+
+void *normalize(double *v){
+  double len;
+
+  len = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+  v[0] /= len;
+  v[1] /= len;
+  v[2] /= len;
+}
+
+double get_diffuse(double *light, double *normal,
+		   int cp, double kd){
+  
+  double val; 
+
+  normalize(light);
+  normalize(normal);
+  val = cp * kd * dot_product(light, normal);
+
+  return val;
+}
+
+double get_specular(int cp, int ks){
+
+}
+
+int get_illumination(struct constants *c, struct light *l,){
+  double ambient, diffuse, specular;
+  double l[3], n[3];
+  int val;
+
+  ambient = get_ambient();
+  diffuse = get_diffuse(l, n, , );
+  specular = get_specular();
+
+  val = ambient + diffuse + specular;
+  return val <= 255 ? val : 255;
 }
