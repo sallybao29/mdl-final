@@ -5,6 +5,7 @@
 
 #include "matrix.h"
 #include "gmath.h"
+#include "parser.h"
 
 
 
@@ -78,13 +79,21 @@ double calculate_dot( struct matrix *points, int i ) {
   return dot;
 }
 
-double dot_product(double* a, double* b){
+
+/*======== double dot_product() ==========
+  Inputs:  double *a, double *b
+	int i  
+  Returns: The dot product of two vectors
+  
+  ====================*/
+double dot_product(double *a, double *b){
   double dot;
 
   dot = a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 
   return dot;
 }
+
 
 double distance(double x0, double y0, double x1, double y1){
 	double a, b;
@@ -96,10 +105,14 @@ double distance(double x0, double y0, double x1, double y1){
 
 
 double get_ambient(int ca, double ka){
-  return ca * ka;
+	double val;
+
+	val = ca * ka;
+	return val > 0 ? val : 0;
 }
 
-void *normalize(double *v){
+
+void normalize(double *v){
   double len;
 
   len = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
@@ -108,8 +121,9 @@ void *normalize(double *v){
   v[2] /= len;
 }
 
+
 double get_diffuse(double *light, double *normal,
-		   int cp, double kd){
+									 int cp, double kd){
   
   double val; 
 
@@ -117,22 +131,42 @@ double get_diffuse(double *light, double *normal,
   normalize(normal);
   val = cp * kd * dot_product(light, normal);
 
-  return val;
+  return val > 0 ? val : 0;
 }
 
-double get_specular(int cp, int ks){
 
+double get_specular(double *light, double *normal, double *view,
+										int cp, double ks){
+
+	double res[3]; 
+	double r;
+	double val;
+
+	r = 2 * dot_product(light, normal);
+	res[0] = normal[0] * r - light[0];
+	res[1] = normal[1] * r - light[1];
+	res[2] = normal[2] * r - light[2];
+
+	val = pow(dot_product(res, view), 3) * cp * ks;
+
+	return val > 0 ? val : 0;
 }
 
-int get_illumination(struct constants *c, struct light *l,){
-  double ambient, diffuse, specular;
-  double l[3], n[3];
-  int val;
 
-  ambient = get_ambient();
-  diffuse = get_diffuse(l, n, , );
-  specular = get_specular();
+int get_illumination(double *l, double *n, int cp, double *constants){
+	double ambient, diffuse, specular;
+	double view[3];
+	int val;
 
-  val = ambient + diffuse + specular;
-  return val <= 255 ? val : 255;
+	//set up view vector
+	view[0] = 0;
+	view[1] = 0;
+	view[2] = -1;
+
+	ambient = get_ambient(cp, constants[Ka]);
+	diffuse = get_diffuse(l, n, cp, constants[Kd]);
+	specular = get_specular(l, n, view, cp, constants[Ks]);
+
+	val = ambient + diffuse + specular;
+	return val <= 255 ? val : 255;
 }

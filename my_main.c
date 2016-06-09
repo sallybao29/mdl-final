@@ -246,16 +246,20 @@ void my_main( int polygons ) {
   struct matrix *transform;
   struct matrix *tmp;
   struct stack *s;
-  screen t;
-  color g;
+	color g;
+	screen t;
 
   struct vary_node **knobs;
   struct vary_node *vn;
   char frame_name[128];
-
   z_buff zb;
 
-  s = new_stack();
+	struct light *l;
+	struct constants *c;
+	char *shade;
+	color amb;
+	
+	s = new_stack();
   tmp = new_matrix(4, 1000);
   clear_screen(t);
 	init_z_buff(zb);
@@ -267,7 +271,7 @@ void my_main( int polygons ) {
   g.green = 255;
   g.blue = 255;
 
-  first_pass();
+	first_pass();
 
   if (num_frames > 1){
     knobs = second_pass();
@@ -279,15 +283,27 @@ void my_main( int polygons ) {
       for (vn = knobs[j]; vn != NULL; vn = vn -> next)
 				set_value(lookup_symbol(vn -> name), vn -> value);
 
-      print_knobs();
+      //print_knobs();
     }
     for (i = 0; i < lastop; i++){
       switch (op[i].opcode){
 
       case AMBIENT:
-				g.red = op[i].op.ambient.c[0];
-				g.green = op[i].op.ambient.c[1];
-				g.blue = op[i].op.ambient.c[2]; 
+				amb.red = op[i].op.ambient.c[0];
+				amb.green = op[i].op.ambient.c[1];
+				amb.blue = op[i].op.ambient.c[2]; 
+				break;
+
+			case LIGHT:
+				l = lookup_symbol(op[i].op.light.p -> name) -> s.l;
+				break;
+
+			case CONSTANTS:
+				c = lookup_symbol(op[i].op.constants.p -> name) -> s.c;
+				break;
+
+			case SHADING:
+				shade = op[i].op.shading.p -> name;
 				break;
 				
       case SPHERE:
@@ -298,7 +314,8 @@ void my_main( int polygons ) {
 										step);
 				//apply the current top origin
 				matrix_mult( s->data[ s->top ], tmp );
-				draw_polygons( tmp, t, g , zb );
+				
+				draw_polygons( tmp, t, zb, l, c, amb, shade );
 				tmp->lastcol = 0;
 				break;
 
@@ -310,7 +327,7 @@ void my_main( int polygons ) {
 									 op[i].op.torus.r1,
 									 step);
 				matrix_mult( s->data[ s->top ], tmp);
-				draw_polygons( tmp, t, g, zb );
+				draw_polygons( tmp, t, zb, l, c, amb, shade );
 				tmp->lastcol = 0;
 				break;
 
@@ -322,7 +339,7 @@ void my_main( int polygons ) {
 								 op[i].op.box.d1[1],
 								 op[i].op.box.d1[2]);
 				matrix_mult( s->data[ s->top ], tmp );
-				draw_polygons( tmp, t, g, zb );
+				draw_polygons( tmp, t, zb, l, c, amb, shade );
 				tmp->lastcol = 0;
 				break;
 

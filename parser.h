@@ -15,8 +15,8 @@ extern int lastop;
 
 struct command
 {
-  int opcode;
-  union
+	int opcode;
+	union
   {
     struct {
       SYMTAB *p;
@@ -28,7 +28,7 @@ struct command
     struct {
       SYMTAB *p;
       /* each triple holds ka kd and ks for red green and blue
-	 respectively */
+				 respectively */
     } constants;
     struct {
       SYMTAB *p;

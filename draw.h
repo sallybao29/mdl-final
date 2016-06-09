@@ -2,6 +2,7 @@
 #define DRAW_H
 
 #include "matrix.h"
+#include "symtab.h"
 
 #define MAX_STEPS 100
 
@@ -20,7 +21,8 @@ void add_polygon( struct matrix * points,
 									double x1, double y1, double z1,
 									double x2, double y2, double z2);
 void draw_lines( struct matrix * points, screen s, color c, z_buff zb);
-void draw_polygons( struct matrix * points, screen s, color c, z_buff zb);
+void draw_polygons( struct matrix * points, screen s, z_buff zb,
+										struct light *l, struct constants *c, color amb, char *shading);
 
 //advanced shapes
 void add_circle( struct matrix * points, 
