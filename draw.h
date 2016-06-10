@@ -11,6 +11,12 @@ void draw_line(int x0, int y0, double z0,
 							 screen s, color c, z_buff zb);
 void fill(struct matrix * points, int i, screen s, color c, z_buff zb);
 
+struct vertex_normal **get_vertex_normals(struct matrix *polygons);
+void add_vertex(struct vertex_normal **vns, int *pos, double *normal,
+								double x, double y, double z);
+struct vertex_normal *lookup_vertex_normal(struct vertex_normal **vns, int pos,
+																					 double vx, double vy, double vz);
+
 void add_point( struct matrix * points, 
 								double x, double y, double z);
 void add_edge( struct matrix * points, 

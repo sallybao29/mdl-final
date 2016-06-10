@@ -3,8 +3,13 @@
 
 #include "matrix.h"
 
+struct vertex_normal {
+	double vertex[3];
+	double normal[3];
+};
+
 double * calculate_normal( double a1, double a2, double a3,
-			   double b1, double b2, double b3 );
+													 double b1, double b2, double b3 );
 double calculate_dot( struct matrix *points, int i );
 
 double distance(double x0, double y0, double x1, double y1);

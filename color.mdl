@@ -1,12 +1,13 @@
 push
 move 250 250 0
-//rotate y 50
-//rotate x 50
+rotate y 50
+rotate x 50
 constants c1 .2 .8 0 .2 .8 0 .2 .8 0
 light l1 0 255 255 0 0 1
 ambient 0 255 153
 shading flat
 //torus 0 0 0 50 200
-sphere 0 0 0 200
+//sphere 0 0 0 200
+box 0 0 0 200 200 200
 display
 save test.png

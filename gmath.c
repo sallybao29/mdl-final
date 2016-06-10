@@ -81,11 +81,11 @@ double calculate_dot( struct matrix *points, int i ) {
 
 
 /*======== double dot_product() ==========
-  Inputs:  double *a, double *b
-	int i  
-  Returns: The dot product of two vectors
+  Inputs:  double *a 
+	double *b
+	Returns: The dot product of two vectors
   
-  ====================*/
+	====================*/
 double dot_product(double *a, double *b){
   double dot;
 
@@ -94,7 +94,14 @@ double dot_product(double *a, double *b){
   return dot;
 }
 
-
+/*======== double distance() ==========
+  Inputs:  double x0
+	double y0
+	double x1
+	double y1
+	Returns: The distance between two points
+  
+	====================*/
 double distance(double x0, double y0, double x1, double y1){
 	double a, b;
 
@@ -103,7 +110,14 @@ double distance(double x0, double y0, double x1, double y1){
 	return sqrt(a + b);
 }
 
+/*======== double get_ambient() ==========
+  Inputs:  int ca
+	double ka
+	Returns: ambient component of illumination
 
+	Product of ambient color and constant of ambient reflection
+  
+	====================*/
 double get_ambient(int ca, double ka){
 	double val;
 
@@ -111,7 +125,12 @@ double get_ambient(int ca, double ka){
 	return val > 0 ? val : 0;
 }
 
+/*======== double get_ambient() ==========
+  Inputs: double *v 
+	
+	Normalizes vector v by dividing all components by v's magnitude
 
+	====================*/
 void normalize(double *v){
   double len;
 
@@ -121,7 +140,20 @@ void normalize(double *v){
   v[2] /= len;
 }
 
+/*======== double get_diffuse() ==========
+  Inputs:  double *light
+	double *normal
+	int cp
+	double kd
 
+	Returns: diffuse component of illumination
+
+	Product of diffuse color, constant of diffuse reflection, 
+	and dot product of light and normal vectors
+
+	Light and normal vectors have been normalized
+  
+	====================*/
 double get_diffuse(double *light, double *normal,
 									 int cp, double kd){
   
@@ -134,7 +166,20 @@ double get_diffuse(double *light, double *normal,
   return val > 0 ? val : 0;
 }
 
+/*======== double get_specular() ==========
+  Inputs:  double *light
+	double *normal
+	int cp
+	double ks
+	
+	Returns: specular component of illumination
+	
+	Product of specular color, constant of specular reflection, 
+	and dot product of reflection and view vectors
 
+	Light and normal vectors have been normalized
+  
+	====================*/
 double get_specular(double *light, double *normal, double *view,
 										int cp, double ks){
 
@@ -152,7 +197,17 @@ double get_specular(double *light, double *normal, double *view,
 	return val > 0 ? val : 0;
 }
 
-
+/*======== double get_illumination() ==========
+  Inputs:  double *l
+	double *n
+	int cp
+	double *constants
+	
+	Returns: illumination (0 - 255)
+	
+	Sum of ambient, diffuse, and specular components of illumination
+  
+	====================*/
 int get_illumination(double *l, double *n, int cp, double *constants){
 	double ambient, diffuse, specular;
 	double view[3];
