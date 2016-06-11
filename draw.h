@@ -2,18 +2,25 @@
 #define DRAW_H
 
 #include "matrix.h"
-#include "symtab.h"
+#include "gmath.h"
 
 #define MAX_STEPS 100
 
+
 void draw_line(int x0, int y0, double z0,
 							 int x1, int y1, double z1,
-							 screen s, color c, z_buff zb);
-void fill(struct matrix * points, int i, screen s, color c, z_buff zb);
+							 screen s, color c, z_buff zb,
+							 char* shading, union cv n);
+
+void fill( struct matrix *points, int i, screen s, z_buff zb,
+					 struct light *light, struct constants *c, color amb,
+					 char* shading, struct vertex_normal **vns);
 
 struct vertex_normal **get_vertex_normals(struct matrix *polygons);
-void add_vertex(struct vertex_normal **vns, int *pos, double *normal,
+
+void add_vertex(struct vertex_normal **vns, int *pos, vector normal,
 								double x, double y, double z);
+
 struct vertex_normal *lookup_vertex_normal(struct vertex_normal **vns, int pos,
 																					 double vx, double vy, double vz);
 

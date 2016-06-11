@@ -22,24 +22,35 @@
   04/17/12 16:46:30
   jonalf
   ====================*/
-double * calculate_normal( double ax, double ay, double az,	
-													 double bx, double by, double bz ) {
-  
-  double *normal;
-  normal = (double *)malloc(3 * sizeof(double));
+void calculate_normal( vector normal, double ax, double ay, double az,	
+											 double bx, double by, double bz ) {
+	
+	
+	normal[X] = ay*bz - az*by;
+  normal[Y] = az*bx - ax*bz;
+  normal[Z] = ax*by - ay*bx;
+}
 
-  normal[0] = ay*bz - az*by;
-  normal[1] = az*bx - ax*bz;
-  normal[2] = ax*by - ay*bx;
+void calculate_surface_normal(struct matrix *points, int i, vector normal){
+	double ax, ay, az, bx, by, bz;
 
-  return normal;
+  //calculate A and B vectors
+  ax = points->m[X][i+1] - points->m[X][i];
+  ay = points->m[Y][i+1] - points->m[Y][i];
+  az = points->m[Z][i+1] - points->m[Z][i];
+
+  bx = points->m[X][i+2] - points->m[X][i];
+  by = points->m[Y][i+2] - points->m[Y][i];
+  bz = points->m[Z][i+2] - points->m[Z][i];
+
+  calculate_normal(normal, ax, ay, az, bx, by, bz );
 }
 
 /*======== double calculate_dot() ==========
   Inputs:   struct matrix *points
-            int i  
+	int i  
   Returns: The dot product of a surface normal and
-           a view vector
+	a view vector
   
   calculates the dot product of the surface normal to
   triangle points[i], points[i+1], points[i+2] and a 
@@ -50,34 +61,23 @@ double * calculate_normal( double ax, double ay, double az,
   ====================*/
 double calculate_dot( struct matrix *points, int i ) {
 
-  double ax, ay, az, bx, by, bz;
-  double *normal;
-  double vx, vy, vz;
+  vector normal;
+	vector view;
   double dot;
 
-  //calculate A and B vectors
-  ax = points->m[0][i+1] - points->m[0][i];
-  ay = points->m[1][i+1] - points->m[1][i];
-  az = points->m[2][i+1] - points->m[2][i];
+  calculate_surface_normal(points, i, normal);
 
-  bx = points->m[0][i+2] - points->m[0][i];
-  by = points->m[1][i+2] - points->m[1][i];
-  bz = points->m[2][i+2] - points->m[2][i];
+	//set up view vector
+	view[X] = 0;
+	view[Y] = 0;
+	view[Z] = -1;
 
-  //get the surface normal
-  normal = calculate_normal( ax, ay, az, bx, by, bz );
+	//calculate dot product
+	dot = dot_product(normal, view);
 
-  //set up view vector
-  vx = 0;
-  vy = 0;
-  vz = -1;
-
-  //calculate dot product
-  dot = normal[0] * vx + normal[1] * vy + normal[2] * vz;
-
-  free(normal);  
-  return dot;
+	return dot;
 }
+
 
 
 /*======== double dot_product() ==========
@@ -86,10 +86,10 @@ double calculate_dot( struct matrix *points, int i ) {
 	Returns: The dot product of two vectors
   
 	====================*/
-double dot_product(double *a, double *b){
+double dot_product(vector a, vector b){
   double dot;
 
-  dot = a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  dot = a[X] * b[X] + a[Y] * b[Y] + a[Z] * b[Z];
 
   return dot;
 }
@@ -131,13 +131,13 @@ double get_ambient(int ca, double ka){
 	Normalizes vector v by dividing all components by v's magnitude
 
 	====================*/
-void normalize(double *v){
+void normalize(vector v){
   double len;
 
-  len = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-  v[0] /= len;
-  v[1] /= len;
-  v[2] /= len;
+  len = sqrt(v[X] * v[X] + v[Y] * v[Y] + v[Z] * v[Z]);
+  v[X] /= len;
+  v[Y] /= len;
+  v[Z] /= len;
 }
 
 /*======== double get_diffuse() ==========
@@ -154,7 +154,7 @@ void normalize(double *v){
 	Light and normal vectors have been normalized
   
 	====================*/
-double get_diffuse(double *light, double *normal,
+double get_diffuse(vector light, vector normal,
 									 int cp, double kd){
   
   double val; 
@@ -180,17 +180,22 @@ double get_diffuse(double *light, double *normal,
 	Light and normal vectors have been normalized
   
 	====================*/
-double get_specular(double *light, double *normal, double *view,
+double get_specular(vector light, vector normal,
 										int cp, double ks){
 
-	double res[3]; 
+	vector res;
+	vector view;
 	double r;
 	double val;
 
+	view[X] = 0;
+	view[Y] = 0;
+	view[Z] = -1;
+
 	r = 2 * dot_product(light, normal);
-	res[0] = normal[0] * r - light[0];
-	res[1] = normal[1] * r - light[1];
-	res[2] = normal[2] * r - light[2];
+	res[X] = normal[X] * r - light[X];
+	res[Y] = normal[Y] * r - light[Y];
+	res[Z] = normal[Z] * r - light[Z];
 
 	val = pow(dot_product(res, view), 3) * cp * ks;
 
@@ -208,19 +213,13 @@ double get_specular(double *light, double *normal, double *view,
 	Sum of ambient, diffuse, and specular components of illumination
   
 	====================*/
-int get_illumination(double *l, double *n, int cp, double *constants){
+int get_illumination(vector light, vector normal, int cp, int ca, double *constants){
 	double ambient, diffuse, specular;
-	double view[3];
 	int val;
 
-	//set up view vector
-	view[0] = 0;
-	view[1] = 0;
-	view[2] = -1;
-
-	ambient = get_ambient(cp, constants[Ka]);
-	diffuse = get_diffuse(l, n, cp, constants[Kd]);
-	specular = get_specular(l, n, view, cp, constants[Ks]);
+	ambient = get_ambient(ca, constants[Ka]);
+	diffuse = get_diffuse(light, normal, cp, constants[Kd]);
+	specular = get_specular(light, normal, cp, constants[Ks]);
 
 	val = ambient + diffuse + specular;
 	return val <= 255 ? val : 255;

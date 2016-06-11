@@ -2,29 +2,44 @@
 #define GMATH_H
 
 #include "matrix.h"
+#include "ml6.h"
+
+#define X 0
+#define Y 1
+#define Z 2
+
+typedef double vector[3];
 
 struct vertex_normal {
 	double vertex[3];
 	double normal[3];
 };
 
-double * calculate_normal( double a1, double a2, double a3,
-													 double b1, double b2, double b3 );
+union cv {
+	color c[2];
+	vector v[2];
+};
+
+
+void calculate_normal( vector normal, double a1, double a2, double a3,
+											 double b1, double b2, double b3 );
+
+void calculate_surface_normal(struct matrix *points, int i, vector normal);
+
 double calculate_dot( struct matrix *points, int i );
 
 double distance(double x0, double y0, double x1, double y1);
 
-double dot_product(double *a, double *b);
+double dot_product(vector a, vector b);
 
-void normalize(double *v);
+void normalize(vector v);
 	
 double get_ambient(int ca, double ka);
 
-double get_diffuse(double *light, double *normal, int cp, double kd);
+double get_diffuse(vector light, vector normal, int cp, double kd);
 
-double get_specular(double *light, double *normal, double *view,
-										int cp, double ks);
+double get_diffuse(vector light, vector normal, int cp, double kd);
 
-int get_illumination(double *l, double *n, int cp, double *constants);
+int get_illumination(vector light, vector normal, int cp, int ca, double *constants);
 
 #endif
