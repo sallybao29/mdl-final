@@ -14,15 +14,17 @@ void draw_line(int x0, int y0, double z0,
 
 void fill( struct matrix *points, int i, screen s, z_buff zb,
 					 struct light *light, struct constants *c, color amb,
-					 char* shading, struct vertex_normal **vns);
+					 char* shading, struct matrix *vertices, struct matrix *normals);
 
-struct vertex_normal **get_vertex_normals(struct matrix *polygons);
+void get_vertex_normals(struct matrix *polygons, struct matrix * vertices, struct matrix *normals);
 
-void add_vertex(struct vertex_normal **vns, int *pos, vector normal,
+void add_vertex(struct matrix *vertices, struct matrix *normals, vector normal,
 								double x, double y, double z);
 
-struct vertex_normal *lookup_vertex_normal(struct vertex_normal **vns, int pos,
-																					 double vx, double vy, double vz);
+int lookup_vertex(struct matrix *vertices, double vx, double vy, double vz);
+
+void lookup_normal(struct matrix *vertices, struct matrix *normals, vector normal,
+									 double x, double y, double z);
 
 void add_point( struct matrix * points, 
 								double x, double y, double z);

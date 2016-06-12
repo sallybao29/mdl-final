@@ -9,15 +9,18 @@
 
 
 
-/*======== double * calculate_normal() ==========
-  Inputs:   double ax
+
+/*======== void calculate_normal() ==========
+  Inputs: vector normal  
+	double ax
 	double ay
 	double az
 	double bx
 	double by
 	double bz  
-  Returns: A double arry of size 3 representing the 
-	cross product of <ax, ay, az> and <bx, by, bz>
+
+	Calculates the cross product of <ax, ay, az> and <bx, by, bz> 
+	and changes normal to reflect those values
 
   04/17/12 16:46:30
   jonalf
@@ -31,6 +34,15 @@ void calculate_normal( vector normal, double ax, double ay, double az,
   normal[Z] = ax*by - ay*bx;
 }
 
+/*======== void calculate_surface_normal() ==========
+  Inputs: Inputs: struct matrix *points
+	int i  
+	vector normal
+  
+	Calculates the surface normal of polygon by taking the cross product
+	of two vectors based on triangle points[i], points[i+1], points[i+2]
+ 
+  ====================*/
 void calculate_surface_normal(struct matrix *points, int i, vector normal){
 	double ax, ay, az, bx, by, bz;
 
@@ -213,14 +225,43 @@ double get_specular(vector light, vector normal,
 	Sum of ambient, diffuse, and specular components of illumination
   
 	====================*/
-int get_illumination(vector light, vector normal, int cp, int ca, double *constants){
+color get_illumination(vector light, vector normal, double *cp, color ca, struct constants *cons){
+	color c;
 	double ambient, diffuse, specular;
 	int val;
 
-	ambient = get_ambient(ca, constants[Ka]);
-	diffuse = get_diffuse(light, normal, cp, constants[Kd]);
-	specular = get_specular(light, normal, cp, constants[Ks]);
+	ambient = get_ambient(ca.red, cons -> r[Ka]);
+	diffuse = get_diffuse(light, normal, cp[0], cons -> r[Kd]);
+	specular = get_specular(light, normal, cp[0], cons -> r[Ks]);
+
+	ambient = ambient > 0 ? ambient : 0;
+	diffuse = diffuse > 0 ? diffuse : 0;
+	specular = specular > 0 ? specular : 0;
 
 	val = ambient + diffuse + specular;
-	return val <= 255 ? val : 255;
+	c.red = val <= 255 ? val : 255;
+
+	ambient = get_ambient(ca.green, cons -> g[Ka]);
+	diffuse = get_diffuse(light, normal, cp[1], cons -> g[Kd]);
+	specular = get_specular(light, normal, cp[1], cons -> g[Ks]);
+
+	ambient = ambient > 0 ? ambient : 0;
+	diffuse = diffuse > 0 ? diffuse : 0;
+	specular = specular > 0 ? specular : 0;
+
+	val = ambient + diffuse + specular;
+	c.green = val <= 255 ? val : 255;
+
+	ambient = get_ambient(ca.blue, cons -> b[Ka]);
+	diffuse = get_diffuse(light, normal, cp[2], cons -> b[Kd]);
+	specular = get_specular(light, normal, cp[2], cons -> b[Ks]);
+
+	ambient = ambient > 0 ? ambient : 0;
+	diffuse = diffuse > 0 ? diffuse : 0;
+	specular = specular > 0 ? specular : 0;
+
+	val = ambient + diffuse + specular;
+	c.blue = val <= 255 ? val : 255;
+
+	return c;
 }

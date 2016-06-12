@@ -3,6 +3,7 @@
 
 #include "matrix.h"
 #include "ml6.h"
+#include "symtab.h"
 
 #define X 0
 #define Y 1
@@ -40,6 +41,6 @@ double get_diffuse(vector light, vector normal, int cp, double kd);
 
 double get_diffuse(vector light, vector normal, int cp, double kd);
 
-int get_illumination(vector light, vector normal, int cp, int ca, double *constants);
+color get_illumination(vector light, vector normal, double *cp, color ca, struct constants *cons);
 
 #endif
