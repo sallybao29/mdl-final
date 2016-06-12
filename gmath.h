@@ -17,7 +17,7 @@ struct vertex_normal {
 };
 
 union cv {
-	color c[2];
+	double c[2][3];
 	vector v[2];
 };
 

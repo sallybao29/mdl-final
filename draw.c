@@ -100,8 +100,13 @@ void fill( struct matrix *points, int i, screen s, z_buff zb,
 	dz2 = (p[2][TOP] - p[2][MID]) / distance(p[0][TOP], p[1][TOP],
 																					 p[0][MID], p[1][MID]); 
 
-	color ct, cm, cb, c0, c1;
-	color dc0, dc1, dc2;
+	color ct, cm, cb;
+	double c0r, c0g, c0b,
+		c1r, c1g, c1b;
+	double dc0r, dc0g, dc0b,
+		dc1r, dc1g, dc1b,
+		dc2r, dc2g, dc2b;
+	//color dc0, dc1, dc2;
 	vector lt, lm, lb, normal;
 
 	if (strcmp(shading, "gouraud") == 0){
@@ -128,49 +133,61 @@ void fill( struct matrix *points, int i, screen s, z_buff zb,
 		lookup_normal(vertices, normals, normal, p[X][BOT], p[Y][BOT], p[Z][BOT]);
 		cb = get_illumination(lb, normal, light -> l, amb, c);
 
-		dc0.red = (ct.red - cb.red) / distance(p[X][TOP], p[Y][TOP],
-																					 p[X][BOT], p[Y][BOT]);
-		dc0.green = (ct.green - cb.green) / distance(p[X][TOP], p[Y][TOP],
-																								 p[X][BOT], p[Y][BOT]);
-		dc0.blue = (ct.blue - cb.blue) / distance(p[X][TOP], p[Y][TOP],
-																							p[X][BOT], p[Y][BOT]);
+		dc0r = (ct.red - cb.red) / distance(p[X][TOP], p[Y][TOP],
+																				p[X][BOT], p[Y][BOT]);
+		dc0g = (ct.green - cb.green) / distance(p[X][TOP], p[Y][TOP],
+																						p[X][BOT], p[Y][BOT]);
+		dc0b = (ct.blue - cb.blue) / distance(p[X][TOP], p[Y][TOP],
+																					p[X][BOT], p[Y][BOT]);
 		
-		dc1.red = (cm.red - cb.red) / distance(p[X][MID], p[Y][MID],
-																					 p[X][BOT], p[Y][BOT]);
-		dc1.green = (cm.green - cb.green) / distance(p[X][MID], p[Y][MID],
-																								 p[X][BOT], p[Y][BOT]);
-		dc1.blue = (cm.blue - cb.blue) / distance(p[X][MID], p[Y][MID],
-																							p[X][BOT], p[Y][BOT]);
+		dc1r = (cm.red - cb.red) / distance(p[X][MID], p[Y][MID],
+																				p[X][BOT], p[Y][BOT]);
+		dc1g = (cm.green - cb.green) / distance(p[X][MID], p[Y][MID],
+																						p[X][BOT], p[Y][BOT]);
+		dc1b = (cm.blue - cb.blue) / distance(p[X][MID], p[Y][MID],
+																					p[X][BOT], p[Y][BOT]);
 
-		dc2.red = (ct.red - cm.red) / distance(p[X][TOP], p[Y][TOP],
-																					 p[X][MID], p[Y][MID]);
-		dc2.green = (ct.green - cm.green) / distance(p[X][TOP], p[Y][TOP],
-																								 p[X][MID], p[Y][MID]);
-		dc2.blue = (ct.blue - cm.blue) / distance(p[X][TOP], p[Y][TOP],
-																							p[X][MID], p[Y][MID]);
+		dc2r = (ct.red - cm.red) / distance(p[X][TOP], p[Y][TOP],
+																				p[X][MID], p[Y][MID]);
+		dc2g = (ct.green - cm.green) / distance(p[X][TOP], p[Y][TOP],
+																						p[X][MID], p[Y][MID]);
+		dc2b = (ct.blue - cm.blue) / distance(p[X][TOP], p[Y][TOP],
+																					p[X][MID], p[Y][MID]);
 
-		c0 = cb;
-		c1 = c0;
+		//c0 = cb;
+		//c1 = c0;
+		
+		c0r = cb.red;
+		c0g = cb.green;
+		c0b = cb.green;
+
+		c1r = c0r;
+		c1g = c0g;
+		c1b = c0b;
+	}
+
+	if (strcmp(shading, "phong") == 0){
+		
 	}
 
 	while ((int)y0 < (int)(p[Y][TOP])){
 
 		if (strcmp(shading, "gouraud") == 0){
-			sandy.c[0].red = c0.red;
-			sandy.c[0].green = c0.green;
-			sandy.c[0].blue = c0.blue;
+			sandy.c[0][0] = c0r;
+			sandy.c[0][1] = c0g;
+			sandy.c[0][2] = c0b;
 
-			sandy.c[1].red = c1.red;
-			sandy.c[1].green = c1.green;
-			sandy.c[1].blue = c1.blue;
+			sandy.c[1][0] = c1r;
+			sandy.c[1][1] = c1g;
+			sandy.c[1][2] = c1b;
 			
-			c0.red += dc0.red;
-			c0.green += dc0.green;
-			c0.blue += dc0.blue;
+			c0r += dc0r;
+			c0g += dc0g;
+			c0b += dc0b;
 
-			c1.red += dc1.red;
-			c1.green += dc1.green;
-			c1.blue += dc1.blue;
+			c1r += dc1r;
+			c1g += dc1g;
+			c1b += dc1b;
 		}
 	
 		//printf("Drawing (%lf, %lf) to (%lf, %lf)\n", x0, y0, x0, y1);
@@ -191,7 +208,13 @@ void fill( struct matrix *points, int i, screen s, z_buff zb,
 
 			if (strcmp(shading, "gouraud") == 0){
 				c1 = cm;
-				dc1 = dc2;
+				c1r = cm.red;
+				c1g = cm.green;
+				c1b = cm.blue;
+				
+				dc1r = dc2r;
+				dc1g = dc2g;
+				dc1b = dc2b;
 			}
 		}
 	}
@@ -292,7 +315,7 @@ void add_vertex(struct matrix *vertices, struct matrix *normals, vector normal,
 	}
 
 	//if vertex in storage, add surface to vertex normal
-  else {
+	else {
 		normals -> m[X][index] += normal[X];
 		normals -> m[Y][index] += normal[Y];
 		normals -> m[Z][index] += normal[Z];
@@ -362,7 +385,9 @@ void draw_polygons( struct matrix *polygons, screen s, z_buff zb,
 	vertices = new_matrix(4, 100);
 	normals = new_matrix(4, 100);
 
-	if (strcmp(shading, "gouraud") == 0){
+	if (strcmp(shading, "gouraud") == 0 ||
+			strcmp(shading, "phong") == 0){
+		
 		get_vertex_normals(polygons, vertices, normals);
 	}
 	
@@ -383,30 +408,30 @@ void draw_polygons( struct matrix *polygons, screen s, z_buff zb,
 				light[Z] = mid[Z] - l -> c[Z];
 
 				col = get_illumination(light, normal, l -> l, amb, c);
-			}
-			/*
+		
 				draw_line( polygons->m[0][i],
-				polygons->m[1][i],
-				polygons->m[2][i],
-				polygons->m[0][i+1],
-				polygons->m[1][i+1],
-				polygons->m[2][i+1],
-				s, col, zb, "None", potato);
+									 polygons->m[1][i],
+									 polygons->m[2][i],
+									 polygons->m[0][i+1],
+									 polygons->m[1][i+1],
+									 polygons->m[2][i+1],
+									 s, col, zb, "None", potato);
 				draw_line( polygons->m[0][i+1],
-				polygons->m[1][i+1],
-				polygons->m[2][i+1],
-				polygons->m[0][i+2],
-				polygons->m[1][i+2],
-				polygons->m[2][i+2],
-				s, col, zb, "None", potato);
+									 polygons->m[1][i+1],
+									 polygons->m[2][i+1],
+									 polygons->m[0][i+2],
+									 polygons->m[1][i+2],
+									 polygons->m[2][i+2],
+									 s, col, zb, "None", potato);
 				draw_line( polygons->m[0][i+2],
-				polygons->m[1][i+2],
-				polygons->m[2][i+2],
-				polygons->m[0][i],
-				polygons->m[1][i],
-				polygons->m[2][i],
-				s, col, zb, "None", potato);
-			*/
+									 polygons->m[1][i+2],
+									 polygons->m[2][i+2],
+									 polygons->m[0][i],
+									 polygons->m[1][i],
+									 polygons->m[2][i],
+									 s, col, zb, "None", potato);
+			
+			}
 			fill(polygons, i, s, zb, l, c, col, shading, vertices, normals);
 		}
 	}
@@ -726,351 +751,407 @@ void add_box( struct matrix * polygons,
 	add_polygon( polygons, 
 							 x2, y2, z2, 
 							 x2, y2, z,
-								 x, y2, z);
-		add_polygon( polygons, 
-								 x, y2, z, 
-								 x, y2, z2,
-								 x2, y2, z2);
-		//right side
-		add_polygon( polygons, 
-								 x2, y, z, 
-								 x2, y2, z,
-								 x2, y2, z2);
-		add_polygon( polygons, 
-								 x2, y2, z2, 
-								 x2, y, z2,
-								 x2, y, z);
-		//left side
-		add_polygon( polygons, 
-								 x, y, z2, 
-								 x, y2, z2,
-								 x, y2, z);
-		add_polygon( polygons, 
-								 x, y2, z, 
-								 x, y, z,
-								 x, y, z2); 
-	}
+							 x, y2, z);
+	add_polygon( polygons, 
+							 x, y2, z, 
+							 x, y2, z2,
+							 x2, y2, z2);
+	//right side
+	add_polygon( polygons, 
+							 x2, y, z, 
+							 x2, y2, z,
+							 x2, y2, z2);
+	add_polygon( polygons, 
+							 x2, y2, z2, 
+							 x2, y, z2,
+							 x2, y, z);
+	//left side
+	add_polygon( polygons, 
+							 x, y, z2, 
+							 x, y2, z2,
+							 x, y2, z);
+	add_polygon( polygons, 
+							 x, y2, z, 
+							 x, y, z,
+							 x, y, z2); 
+}
   
-	/*======== void add_circle() ==========
-		Inputs:   struct matrix * points
-		double cx
-		double cy
-		double y
-		double step  
-		Returns: 
+/*======== void add_circle() ==========
+	Inputs:   struct matrix * points
+	double cx
+	double cy
+	double y
+	double step  
+	Returns: 
 
 
-		03/16/12 19:53:52
-		jdyrlandweaver
-		====================*/
-	void add_circle( struct matrix * points, 
-									 double cx, double cy, 
-									 double r, double step ) {
+	03/16/12 19:53:52
+	jdyrlandweaver
+	====================*/
+void add_circle( struct matrix * points, 
+								 double cx, double cy, 
+								 double r, double step ) {
   
-		double x0, y0, x, y, t;
+	double x0, y0, x, y, t;
   
-		x0 = cx + r;
-		y0 = cy;
+	x0 = cx + r;
+	y0 = cy;
 
-		for ( t = step; t <= 1; t+= step ) {
+	for ( t = step; t <= 1; t+= step ) {
     
-			x = r * cos( 2 * M_PI * t ) + cx;
-			y = r * sin( 2 * M_PI * t ) + cy;
+		x = r * cos( 2 * M_PI * t ) + cx;
+		y = r * sin( 2 * M_PI * t ) + cy;
     
-			add_edge( points, x0, y0, 0, x, y, 0 );
-			x0 = x;
-			y0 = y;
-		}
-
-		add_edge( points, x0, y0, 0, cx + r, cy, 0 );
+		add_edge( points, x0, y0, 0, x, y, 0 );
+		x0 = x;
+		y0 = y;
 	}
 
-	/*======== void add_curve() ==========
-		Inputs:   struct matrix *points
-		double x0
-		double y0
-		double x1
-		double y1
-		double x2
-		double y2
-		double x3
-		double y3
-		double step
-		int type  
-		Returns: 
+	add_edge( points, x0, y0, 0, cx + r, cy, 0 );
+}
 
-		Adds the curve bounded by the 4 points passsed as parameters
-		of type specified in type (see matrix.h for curve type constants)
-		to the matrix points
+/*======== void add_curve() ==========
+	Inputs:   struct matrix *points
+	double x0
+	double y0
+	double x1
+	double y1
+	double x2
+	double y2
+	double x3
+	double y3
+	double step
+	int type  
+	Returns: 
 
-		03/16/12 15:24:25
-		jdyrlandweaver
-		====================*/
-	void add_curve( struct matrix *points, 
-									double x0, double y0, 
-									double x1, double y1, 
-									double x2, double y2, 
-									double x3, double y3, 
-									double step, int type ) {
+	Adds the curve bounded by the 4 points passsed as parameters
+	of type specified in type (see matrix.h for curve type constants)
+	to the matrix points
 
-		double x, y, t;
-		struct matrix * xcoefs;
-		struct matrix * ycoefs;
+	03/16/12 15:24:25
+	jdyrlandweaver
+	====================*/
+void add_curve( struct matrix *points, 
+								double x0, double y0, 
+								double x1, double y1, 
+								double x2, double y2, 
+								double x3, double y3, 
+								double step, int type ) {
+
+	double x, y, t;
+	struct matrix * xcoefs;
+	struct matrix * ycoefs;
   
-		//generate the coeficients
-		if ( type == BEZIER_MODE ) {
-			ycoefs = generate_curve_coefs(y0, y1, y2, y3, BEZIER_MODE);
-			xcoefs = generate_curve_coefs(x0, x1, x2, x3, BEZIER_MODE);
-		}
+	//generate the coeficients
+	if ( type == BEZIER_MODE ) {
+		ycoefs = generate_curve_coefs(y0, y1, y2, y3, BEZIER_MODE);
+		xcoefs = generate_curve_coefs(x0, x1, x2, x3, BEZIER_MODE);
+	}
 
-		else {
-			xcoefs = generate_curve_coefs(x0, x1, x2, x3, HERMITE_MODE);
-			ycoefs = generate_curve_coefs(y0, y1, y2, y3, HERMITE_MODE);
-		}
+	else {
+		xcoefs = generate_curve_coefs(x0, x1, x2, x3, HERMITE_MODE);
+		ycoefs = generate_curve_coefs(y0, y1, y2, y3, HERMITE_MODE);
+	}
 
-		/*
-			printf("a = %lf b = %lf c = %lf d = %lf\n", xcoefs->m[0][0],
-			xcoefs->m[1][0], xcoefs->m[2][0], xcoefs->m[3][0]);
-		*/
+	/*
+		printf("a = %lf b = %lf c = %lf d = %lf\n", xcoefs->m[0][0],
+		xcoefs->m[1][0], xcoefs->m[2][0], xcoefs->m[3][0]);
+	*/
 
-		for (t=step; t <= 1; t+= step) {
+	for (t=step; t <= 1; t+= step) {
     
-			x = xcoefs->m[0][0] * t * t * t + xcoefs->m[1][0] * t * t
-				+ xcoefs->m[2][0] * t + xcoefs->m[3][0];
+		x = xcoefs->m[0][0] * t * t * t + xcoefs->m[1][0] * t * t
+			+ xcoefs->m[2][0] * t + xcoefs->m[3][0];
 
-			y = ycoefs->m[0][0] * t * t * t + ycoefs->m[1][0] * t * t
-				+ ycoefs->m[2][0] * t + ycoefs->m[3][0];
+		y = ycoefs->m[0][0] * t * t * t + ycoefs->m[1][0] * t * t
+			+ ycoefs->m[2][0] * t + ycoefs->m[3][0];
 
-			add_edge(points, x0, y0, 0, x, y, 0);
-			x0 = x;
-			y0 = y;
-		}
-
-		free_matrix(xcoefs);
-		free_matrix(ycoefs);
+		add_edge(points, x0, y0, 0, x, y, 0);
+		x0 = x;
+		y0 = y;
 	}
 
-	/*======== void add_point() ==========
-		Inputs:   struct matrix * points
-		int x
-		int y
-		int z 
-		Returns: 
-		adds point (x, y, z) to points and increment points.lastcol
-		if points is full, should call grow on points
-		====================*/
-	void add_point( struct matrix * points, double x, double y, double z) {
+	free_matrix(xcoefs);
+	free_matrix(ycoefs);
+}
+
+/*======== void add_point() ==========
+	Inputs:   struct matrix * points
+	int x
+	int y
+	int z 
+	Returns: 
+	adds point (x, y, z) to points and increment points.lastcol
+	if points is full, should call grow on points
+	====================*/
+void add_point( struct matrix * points, double x, double y, double z) {
   
-		if ( points->lastcol == points->cols )
-			grow_matrix( points, points->lastcol + 100 );
+	if ( points->lastcol == points->cols )
+		grow_matrix( points, points->lastcol + 100 );
 
-		points->m[0][points->lastcol] = x;
-		points->m[1][points->lastcol] = y;
-		points->m[2][points->lastcol] = z;
-		points->m[3][points->lastcol] = 1;
+	points->m[0][points->lastcol] = x;
+	points->m[1][points->lastcol] = y;
+	points->m[2][points->lastcol] = z;
+	points->m[3][points->lastcol] = 1;
 
-		points->lastcol++;
-	}
+	points->lastcol++;
+}
 
-	/*======== void add_edge() ==========
-		Inputs:   struct matrix * points
-		int x0, int y0, int z0, int x1, int y1, int z1
-		Returns: 
-		add the line connecting (x0, y0, z0) to (x1, y1, z1) to points
-		should use add_point
-		====================*/
-	void add_edge( struct matrix * points, 
-								 double x0, double y0, double z0, 
-								 double x1, double y1, double z1) {
-		add_point( points, x0, y0, z0 );
-		add_point( points, x1, y1, z1 );
-	}
+/*======== void add_edge() ==========
+	Inputs:   struct matrix * points
+	int x0, int y0, int z0, int x1, int y1, int z1
+	Returns: 
+	add the line connecting (x0, y0, z0) to (x1, y1, z1) to points
+	should use add_point
+	====================*/
+void add_edge( struct matrix * points, 
+							 double x0, double y0, double z0, 
+							 double x1, double y1, double z1) {
+	add_point( points, x0, y0, z0 );
+	add_point( points, x1, y1, z1 );
+}
 
-	/*======== void draw_lines() ==========
-		Inputs:   struct matrix * points
-		screen s
-		color c 
-		Returns: 
-		Go through points 2 at a time and call draw_line to add that line
-		to the screen
-		====================*/
-	void draw_lines( struct matrix * points, screen s, color c, z_buff zb) {
+/*======== void draw_lines() ==========
+	Inputs:   struct matrix * points
+	screen s
+	color c 
+	Returns: 
+	Go through points 2 at a time and call draw_line to add that line
+	to the screen
+	====================*/
+void draw_lines( struct matrix * points, screen s, color c, z_buff zb) {
 
-		int i;
-		union cv potato;
+	int i;
+	union cv potato;
  
-		if ( points->lastcol < 2 ) {
+	if ( points->lastcol < 2 ) {
     
-			printf("Need at least 2 points to draw a line!\n");
-			return;
-		}
-
-		for ( i = 0; i < points->lastcol - 1; i+=2 ) {
-
-			draw_line( points->m[0][i], points->m[1][i], points->m[2][i],
-								 points->m[0][i+1], points->m[1][i+1], points->m[2][i+1], 
-								 s, c, zb, "None", potato);
-		} 	       
+		printf("Need at least 2 points to draw a line!\n");
+		return;
 	}
 
+	for ( i = 0; i < points->lastcol - 1; i+=2 ) {
 
-	void draw_line(int x0, int y0, double z0, 
-								 int x1, int y1, double z1, 
-								 screen s, color c, z_buff zb,
-								 char* shading, union cv sandy) {
-	
-		//printf("Drawing the line\n");
-		int x, y, z, d, dx, dy;
-		double dz;
-		color c0, c1, dc;
+		draw_line( points->m[0][i], points->m[1][i], points->m[2][i],
+							 points->m[0][i+1], points->m[1][i+1], points->m[2][i+1], 
+							 s, c, zb, "None", potato);
+	} 	       
+}
 
-		c0 = c;
+
+void draw_line(int x0, int y0, double z0, 
+							 int x1, int y1, double z1, 
+							 screen s, color c, z_buff zb,
+							 char* shading, union cv sandy) {
 	
-		x = x0;
-		y = y0;
-		z = z0;
+	//printf("Drawing the line\n");
+	int x, y, z, d, dx, dy;
+	double dz;
+	//color c0, c1, dc;
+	double c0r, c0g, c0b,
+		c1r, c1g, c1b;
+	double dcr, dcg, dcb;
+
+	//c0 = c;
 	
-		if (strcmp(shading, "gouraud") == 0){
-			c0 = sandy.c[0];
-			c1 = sandy.c[1];
-		}
+	x = x0;
+	y = y0;
+	z = z0;
 	
-		//swap points so we're always drawing left to right
-		if ( x0 > x1 ) {
-			x = x1;
-			y = y1;
-			z = z1;
-			x1 = x0;
-			y1 = y0;
-			z1 = z0;
+	if (strcmp(shading, "gouraud") == 0){
+	
+		c0r = sandy.c[0][0];
+		c0g = sandy.c[0][1];
+		c0b = sandy.c[0][2];
+
+		c1r = sandy.c[1][0];
+		c1g = sandy.c[1][1];
+		c1b = sandy.c[1][2];
+		/*
+			c0.red = sandy.c[0][0];
+			c0.green = sandy.c[0][1];
+			c0.blue = sandy.c[0][2];
+
+			c1.red = sandy.c[1][0];
+			c1.green = sandy.c[1][1];
+			c1.blue = sandy.c[1][2];
+		*/
+	}
+	
+	//swap points so we're always drawing left to right
+	if ( x0 > x1 ) {
+		x = x1;
+		y = y1;
+		z = z1;
+		x1 = x0;
+		y1 = y0;
+		z1 = z0;
 		
-			if (strcmp(shading, "gouraud") == 0){
-				c0 = sandy.c[1];
-				c1 = sandy.c[0];
-			}
-		}
-
-		//need to know dx and dy for this version
-		dx = (x1 - x) * 2;
-		dy = (y1 - y) * 2;
-		dz = (z1 - z) / distance(x, y, x1, y1);
-
 		if (strcmp(shading, "gouraud") == 0){
+	  
+			c0r = sandy.c[1][0];
+			c0g = sandy.c[1][1];
+			c0b = sandy.c[1][2];
+
+			c1r = sandy.c[0][0];
+			c1g = sandy.c[0][1];
+			c1b = sandy.c[0][2];
+			/*
+				c0.red = sandy.c[1][0];
+				c0.green = sandy.c[1][1];
+				c0.blue = sandy.c[1][2];
+
+				c1.red = sandy.c[0][0];
+				c1.green = sandy.c[0][1];
+				c1.blue = sandy.c[0][2];
+			*/
+		}
+	}
+
+	//need to know dx and dy for this version
+	dx = (x1 - x) * 2;
+	dy = (y1 - y) * 2;
+	dz = (z1 - z) / distance(x, y, x1, y1);
+
+	if (strcmp(shading, "gouraud") == 0){
+		/*
 			dc.red = (c1.red - c0.red) / distance(x, y, x1, y1);
 			dc.green = (c1.green - c0.green) / distance(x, y, x1, y1);
 			dc.blue = (c1.blue - c0.blue) / distance(x, y, x1, y1);
-		}
+		*/
+		dcr = (c1r - c0r) / distance(x, y, x1, y1);
+		dcg = (c1g - c0g) / distance(x, y, x1, y1);
+		dcb = (c1b - c0b) / distance(x, y, x1, y1);
+		
+	}
 		
 
-		//positive slope: Octants 1, 2 (5 and 6)
-		if ( dy > 0 ) {
+	//positive slope: Octants 1, 2 (5 and 6)
+	if ( dy > 0 ) {
 
-			//slope < 1: Octant 1 (5)
-			if ( dx > dy ) {
-				d = dy - ( dx / 2 );
+		//slope < 1: Octant 1 (5)
+		if ( dx > dy ) {
+			d = dy - ( dx / 2 );
   
-				while ( x <= x1 ) {
-					plot(s, c0, zb, x, y, z);
-
-					if ( d < 0 ) {
-						x = x + 1;
-						d = d + dy;
-					}
-					else {
-						x = x + 1;
-						y = y + 1;
-						d = d + dy - dx;
-					}
-					z = z + dz;
-					if (strcmp(shading, "gouraud") == 0){
-						c0.red += dc.red;
-						c0.green += dc.green;
-						c0.blue += dc.blue;
-					}
+			while ( x <= x1 ) {
+				if (strcmp(shading, "gouraud") == 0){
+					c.red = c0r;
+					c.green = c0g;
+					c.blue = c0b;
 				}
-			}
+				plot(s, c, zb, x, y, z);
 
-			//slope > 1: Octant 2 (6)
-			else {
-				d = ( dy / 2 ) - dx;
-				while ( y <= y1 ) {
-
-					plot(s, c0, zb, x, y, z);
-					if ( d > 0 ) {
-						y = y + 1;
-						d = d - dx;
-					}
-					else {
-						y = y + 1;
-						x = x + 1;
-						d = d + dy - dx;
-					}
-					z = z + dz;
-					if (strcmp(shading, "gouraud") == 0){
-						c0.red += dc.red;
-						c0.green += dc.green;
-						c0.blue += dc.blue;
-					}
+				if ( d < 0 ) {
+					x = x + 1;
+					d = d + dy;
+				}
+				else {
+					x = x + 1;
+					y = y + 1;
+					d = d + dy - dx;
+				}
+				z = z + dz;
+				if (strcmp(shading, "gouraud") == 0){
+					c0r += dcr;
+					c0g += dcg;
+					c0b += dcb;
 				}
 			}
 		}
 
-		//negative slope: Octants 7, 8 (3 and 4)
-		else { 
-
-			//slope > -1: Octant 8 (4)
-			if ( dx > abs(dy) ) {
-
-				d = dy + ( dx / 2 );
-  
-				while ( x <= x1 ) {
-
-					plot(s, c0, zb, x, y, z);
-
-					if ( d > 0 ) {
-						x = x + 1;
-						d = d + dy;
-					}
-					else {
-						x = x + 1;
-						y = y - 1;
-						d = d + dy + dx;
-					}
-					z = z + dz;
-					if (strcmp(shading, "gouraud") == 0){
-						c0.red += dc.red;
-						c0.green += dc.green;
-						c0.blue += dc.blue;
-					}
+		//slope > 1: Octant 2 (6)
+		else {
+			d = ( dy / 2 ) - dx;
+			while ( y <= y1 ) {
+				if (strcmp(shading, "gouraud") == 0){
+					c.red = c0r;
+					c.green = c0g;
+					c.blue = c0b;
+				}
+				plot(s, c, zb, x, y, z);
+				if ( d > 0 ) {
+					y = y + 1;
+					d = d - dx;
+				}
+				else {
+					y = y + 1;
+					x = x + 1;
+					d = d + dy - dx;
+				}
+				z = z + dz;
+				if (strcmp(shading, "gouraud") == 0){
+					c0r += dcr;
+					c0g += dcg;
+					c0b += dcb;
 				}
 			}
-
-			//slope < -1: Octant 7 (3)
-			else {
-
-				d =  (dy / 2) + dx;
-
-				while ( y >= y1 ) {
-	
-					plot(s, c0, zb, x, y, z);
-					if ( d < 0 ) {
-						y = y - 1;
-						d = d + dx;
-					}
-					else {
-						y = y - 1;
-						x = x + 1;
-						d = d + dy + dx;
-					}
-					z = z + dz;
-					if (strcmp(shading, "gouraud") == 0){
-						c0.red += dc.red;
-						c0.green += dc.green;
-						c0.blue += dc.blue;
-					}
-				}
-			}
-		}  
+		}
 	}
+
+	//negative slope: Octants 7, 8 (3 and 4)
+	else { 
+
+		//slope > -1: Octant 8 (4)
+		if ( dx > abs(dy) ) {
+
+			d = dy + ( dx / 2 );
+  
+			while ( x <= x1 ) {
+				if (strcmp(shading, "gouraud") == 0){
+					c.red = c0r;
+					c.green = c0g;
+					c.blue = c0b;
+				}
+				plot(s, c, zb, x, y, z);
+
+				if ( d > 0 ) {
+					x = x + 1;
+					d = d + dy;
+				}
+				else {
+					x = x + 1;
+					y = y - 1;
+					d = d + dy + dx;
+				}
+				z = z + dz;
+				if (strcmp(shading, "gouraud") == 0){
+					c0r += dcr;
+					c0g += dcg;
+					c0b += dcb;
+				}
+			}
+		}
+
+		//slope < -1: Octant 7 (3)
+		else {
+
+			d =  (dy / 2) + dx;
+
+			while ( y >= y1 ) {
+				if (strcmp(shading, "gouraud") == 0){
+					c.red = c0r;
+					c.green = c0g;
+					c.blue = c0b;
+				}
+				plot(s, c, zb, x, y, z);
+				if ( d < 0 ) {
+					y = y - 1;
+					d = d + dx;
+				}
+				else {
+					y = y - 1;
+					x = x + 1;
+					d = d + dy + dx;
+				}
+				z = z + dz;
+				if (strcmp(shading, "gouraud") == 0){
+					c0r += dcr;
+					c0g += dcg;
+					c0b += dcb;
+				}
+			}
+		}
+	}  
+}
 
 
