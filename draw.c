@@ -166,11 +166,13 @@ void fill( struct matrix *points, int i, screen s, z_buff zb,
 		c1b = c0b;
 	}
 
+	vector nt, nm, nb;
+	
 	if (strcmp(shading, "phong") == 0){
 		
 	}
 
-	while ((int)y0 < (int)(p[Y][TOP])){
+	while ((int)y0 <= (int)(p[Y][TOP])){
 
 		if (strcmp(shading, "gouraud") == 0){
 			sandy.c[0][0] = c0r;
@@ -207,7 +209,7 @@ void fill( struct matrix *points, int i, screen s, z_buff zb,
 			fb++;
 
 			if (strcmp(shading, "gouraud") == 0){
-				c1 = cm;
+				//c1 = cm;
 				c1r = cm.red;
 				c1g = cm.green;
 				c1b = cm.blue;
