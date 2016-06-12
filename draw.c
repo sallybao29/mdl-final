@@ -59,10 +59,11 @@ void fill( struct matrix *points, int i, screen s, z_buff zb,
 	double d0, d1, d2;
 	double x0, x1, y0, y1, z0, z1;
 	double dz0, dz1, dz2;
+	double dist0, dist1, dist2;
 	int m, n, l;
 	int fb = 0;
 	int TOP = 0, MID = 1, BOT = 2;
-	union cv sandy; //can't think of a name
+	union shade_info sh;
 
 
 	for (m = 0; m < 3; m++)
@@ -92,13 +93,13 @@ void fill( struct matrix *points, int i, screen s, z_buff zb,
 	d1 = (p[X][MID] - p[X][BOT]) / (p[Y][MID] - p[Y][BOT]); //(ym-yb)/(xm-xb)
 	d2 = (p[X][TOP] - p[X][MID]) / (p[Y][TOP] - p[Y][MID]); //(yt-ym)/(xt-xm)
 
-
-	dz0 = (p[2][TOP] - p[2][BOT]) / distance(p[0][TOP], p[1][TOP],
-																					 p[0][BOT], p[1][BOT]);
-	dz1 = (p[2][MID] - p[2][BOT]) / distance(p[0][MID], p[1][MID],
-																					 p[0][BOT], p[1][BOT]);
-	dz2 = (p[2][TOP] - p[2][MID]) / distance(p[0][TOP], p[1][TOP],
-																					 p[0][MID], p[1][MID]);
+	dist0 = distance(p[X][TOP], p[Y][TOP], p[X][BOT], p[Y][BOT]);
+	dist1 = distance(p[X][MID], p[Y][MID], p[X][BOT], p[Y][BOT]);
+	dist2 = distance(p[X][TOP], p[Y][TOP], p[X][MID], p[Y][MID]);
+	
+	dz0 = (p[Z][TOP] - p[Z][BOT]) / dist0;
+	dz1 = (p[Z][MID] - p[Z][BOT]) / dist1;
+	dz2 = (p[Z][TOP] - p[Z][MID]) / dist2;
 
 	color ct, cm, cb;
 	double c0r, c0g, c0b,
@@ -106,7 +107,6 @@ void fill( struct matrix *points, int i, screen s, z_buff zb,
 	double dc0r, dc0g, dc0b,
 		dc1r, dc1g, dc1b,
 		dc2r, dc2g, dc2b;
-	//color dc0, dc1, dc2;
 	vector lt, lm, lb, normal;
 
 	if (strcmp(shading, "gouraud") == 0){
@@ -133,29 +133,18 @@ void fill( struct matrix *points, int i, screen s, z_buff zb,
 		lookup_normal(vertices, normals, normal, p[X][BOT], p[Y][BOT], p[Z][BOT]);
 		cb = get_illumination(lb, normal, light -> l, amb, c);
 
-		dc0r = (ct.red - cb.red) / distance(p[X][TOP], p[Y][TOP],
-																				p[X][BOT], p[Y][BOT]);
-		dc0g = (ct.green - cb.green) / distance(p[X][TOP], p[Y][TOP],
-																						p[X][BOT], p[Y][BOT]);
-		dc0b = (ct.blue - cb.blue) / distance(p[X][TOP], p[Y][TOP],
-																					p[X][BOT], p[Y][BOT]);
+		dc0r = (ct.red - cb.red) / dist0;
+		dc0g = (ct.green - cb.green) / dist0;
+		dc0b = (ct.blue - cb.blue) /dist0;
 
-		dc1r = (cm.red - cb.red) / distance(p[X][MID], p[Y][MID],
-																				p[X][BOT], p[Y][BOT]);
-		dc1g = (cm.green - cb.green) / distance(p[X][MID], p[Y][MID],
-																						p[X][BOT], p[Y][BOT]);
-		dc1b = (cm.blue - cb.blue) / distance(p[X][MID], p[Y][MID],
-																					p[X][BOT], p[Y][BOT]);
+		dc1r = (cm.red - cb.red) / dist1;
+		dc1g = (cm.green - cb.green) /dist1;
+		dc1b = (cm.blue - cb.blue) / dist1;
 
-		dc2r = (ct.red - cm.red) / distance(p[X][TOP], p[Y][TOP],
-																				p[X][MID], p[Y][MID]);
-		dc2g = (ct.green - cm.green) / distance(p[X][TOP], p[Y][TOP],
-																						p[X][MID], p[Y][MID]);
-		dc2b = (ct.blue - cm.blue) / distance(p[X][TOP], p[Y][TOP],
-																					p[X][MID], p[Y][MID]);
+		dc2r = (ct.red - cm.red) / dist2;
+		dc2g = (ct.green - cm.green) / dist2;
+		dc2b = (ct.blue - cm.blue) / dist2;
 
-		//c0 = cb;
-		//c1 = c0;
 
 		c0r = cb.red;
 		c0g = cb.green;
@@ -164,25 +153,74 @@ void fill( struct matrix *points, int i, screen s, z_buff zb,
 		c1r = c0r;
 		c1g = c0g;
 		c1b = c0b;
+
+		sh.gouraud.c0[0] = c0r;
+		sh.gouraud.c0[1] = c0g;
+		sh.gouraud.c0[2] = c0b;
+  
+  	sh.gouraud.c1[0] = c1r;
+		sh.gouraud.c1[1] = c1g;
+		sh.gouraud.c1[2] = c1b;
 	}
 
-	vector nt, nm, nb;
+	vector nt, nm, nb, n0, n1;
+	vector dn0, dn1, dn2;
 	
 	if (strcmp(shading, "phong") == 0){
+		lookup_normal(vertices, normals, nt, p[X][TOP], p[Y][TOP], p[Z][TOP]);
+		lookup_normal(vertices, normals, nm, p[X][MID], p[Y][MID], p[Z][MID]);
+		lookup_normal(vertices, normals, nb, p[X][BOT], p[Y][BOT], p[Z][BOT]);
 
+		dn0[X] = (nt[X] - nb[X]) / dist0;
+		dn0[Y] = (nt[Y] - nb[Y]) / dist0;
+		dn0[Z] = (nt[Z] - nb[Z]) / dist0;
+
+		dn1[X] = (nm[X] - nb[X]) / dist1;
+		dn1[Y] = (nm[Y] - nb[Y]) / dist1;
+		dn1[Z] = (nm[Z] - nb[Z]) / dist1;
+
+		dn2[X] = (nt[X] - nm[X]) / dist2;
+		dn2[Y] = (nt[Y] - nm[Y]) / dist2;
+		dn2[Z] = (nt[Z] - nm[Z]) / dist2;
+
+		n0[X] = nb[X];
+		n0[Y] = nb[Y];
+		n0[Z] = nb[Z];
+		
+		n1[X] = n0[X];
+		n1[Y] = n0[Y];
+		n1[Z] = n0[Z];
+
+		sh.phong.n0[X] = n0[X];
+		sh.phong.n0[Y] = n0[Y];
+		sh.phong.n0[Z] = n0[Z];
+	
+		sh.phong.n1[X] = n1[X];
+		sh.phong.n1[Y] = n1[Y];
+		sh.phong.n1[Z] = n1[Z];
+
+		sh.phong.l = light;
+		sh.phong.c = c;
+		sh.phong.amb = amb;
 	}
 
 	while ((int)y0 <= (int)(p[Y][TOP])){
 
+		if (strcmp(shading, "gouraud") == 0 ||
+				strcmp(shading, "phong") == 0)
+			
+			draw_line_with_shading(x0, y0, z0, x1, y0, z1, s, zb, shading, sh);
+		
+		else
+			draw_line(x0, y0, z0, x1, y0, z1, s, amb, zb);
+
+		y0 += 1;
+		x0 += d0;
+		x1 += d1;
+		z0 += dz0;
+		z1 += dz1;
+
 		if (strcmp(shading, "gouraud") == 0){
-			sandy.c[0][0] = c0r;
-			sandy.c[0][1] = c0g;
-			sandy.c[0][2] = c0b;
-
-			sandy.c[1][0] = c1r;
-			sandy.c[1][1] = c1g;
-			sandy.c[1][2] = c1b;
-
 			c0r += dc0r;
 			c0g += dc0g;
 			c0b += dc0b;
@@ -190,16 +228,33 @@ void fill( struct matrix *points, int i, screen s, z_buff zb,
 			c1r += dc1r;
 			c1g += dc1g;
 			c1b += dc1b;
+
+			sh.gouraud.c0[0] = c0r;
+			sh.gouraud.c0[1] = c0g;
+			sh.gouraud.c0[2] = c0b;
+  
+			sh.gouraud.c1[0] = c1r;
+			sh.gouraud.c1[1] = c1g;
+			sh.gouraud.c1[2] = c1b;
 		}
 
-		//printf("Drawing (%lf, %lf) to (%lf, %lf)\n", x0, y0, x0, y1);
-		draw_line(x0, y0, z0, x1, y0, z1, s, amb, zb, shading, sandy);
+		if (strcmp(shading, "phong") == 0){
+			n0[X] += dn0[X];
+			n0[Y] += dn0[Y];
+			n0[Z] += dn0[Z];
 
-		y0 += 1;
-		x0 += d0;
-		x1 += d1;
-		z0 += dz0;
-		z1 += dz1;
+			n1[X] += dn1[X];
+			n1[Y] += dn1[Y];
+			n1[Z] += dn1[Z];
+
+			sh.phong.n0[X] = n0[X];
+			sh.phong.n0[Y] = n0[Y];
+			sh.phong.n0[Z] = n0[Z];
+	
+			sh.phong.n1[X] = n1[X];
+			sh.phong.n1[Y] = n1[Y];
+			sh.phong.n1[Z] = n1[Z];
+		}
 
 		if (y0 >= (int)p[Y][MID] && !fb){
 			d1 = d2;
@@ -209,7 +264,6 @@ void fill( struct matrix *points, int i, screen s, z_buff zb,
 			fb++;
 
 			if (strcmp(shading, "gouraud") == 0){
-				//c1 = cm;
 				c1r = cm.red;
 				c1g = cm.green;
 				c1b = cm.blue;
@@ -217,6 +271,16 @@ void fill( struct matrix *points, int i, screen s, z_buff zb,
 				dc1r = dc2r;
 				dc1g = dc2g;
 				dc1b = dc2b;
+			}
+
+			if (strcmp(shading, "phong") == 0){
+				n1[X] = nm[X];
+				n1[Y] = nm[Y];
+				n1[Z] = nm[Z];
+
+				dn1[X] = dn2[X];
+				dn1[Y] = dn2[Y];
+				dn1[Z] = dn2[Z];
 			}
 		}
 	}
@@ -293,13 +357,14 @@ int lookup_vertex(struct matrix *vertices, double vx, double vy, double vz){
 
 	int i;
 
-	for (i = 0; i < vertices -> lastcol; i++){
+	for (i = 0; i <= vertices -> lastcol; i++){
+
 		if (vertices -> m[X][i] == vx &&
 				vertices -> m[Y][i] == vy &&
 				vertices -> m[Z][i] == vz){
 			return i;
 		}
-	}
+	} 
 	return -1;
 }
 
@@ -322,7 +387,6 @@ void add_vertex(struct matrix *vertices, struct matrix *normals, vector normal,
 		normals -> m[Y][index] += normal[Y];
 		normals -> m[Z][index] += normal[Z];
 	}
-
 }
 
 
@@ -376,12 +440,10 @@ void draw_polygons( struct matrix *polygons, screen s, z_buff zb,
 
 	int i;
 	color col;
-	color c0, c1;
 	vector normal;
 	vector light;
 	double mid[3];
 	struct matrix *vertices, *normals;
-	union cv potato;
 
 	col = amb;
 	vertices = new_matrix(4, 100);
@@ -390,6 +452,8 @@ void draw_polygons( struct matrix *polygons, screen s, z_buff zb,
 	if (strcmp(shading, "gouraud") == 0 ||
 			strcmp(shading, "phong") == 0){
 
+		vertices = new_matrix(4, 100);
+		normals = new_matrix(4, 100);
 		get_vertex_normals(polygons, vertices, normals);
 	}
 
@@ -417,28 +481,31 @@ void draw_polygons( struct matrix *polygons, screen s, z_buff zb,
 									 polygons->m[0][i+1],
 									 polygons->m[1][i+1],
 									 polygons->m[2][i+1],
-									 s, col, zb, "None", potato);
+									 s, col, zb);
 				draw_line( polygons->m[0][i+1],
 									 polygons->m[1][i+1],
 									 polygons->m[2][i+1],
 									 polygons->m[0][i+2],
 									 polygons->m[1][i+2],
 									 polygons->m[2][i+2],
-									 s, col, zb, "None", potato);
+									 s, col, zb);
 				draw_line( polygons->m[0][i+2],
 									 polygons->m[1][i+2],
 									 polygons->m[2][i+2],
 									 polygons->m[0][i],
 									 polygons->m[1][i],
 									 polygons->m[2][i],
-									 s, col, zb, "None", potato);
-
+									 s, col, zb); 
+  
 			}
 			fill(polygons, i, s, zb, l, c, col, shading, vertices, normals);
 		}
 	}
+	if (vertices != NULL){
+		free_matrix(vertices);
+		free_matrix(normals);
+	}
 }
-
 
 /*======== void add_sphere() ==========
 	Inputs:   struct matrix * points
@@ -924,7 +991,6 @@ void add_edge( struct matrix * points,
 void draw_lines( struct matrix * points, screen s, color c, z_buff zb) {
 
 	int i;
-	union cv potato;
 
 	if ( points->lastcol < 2 ) {
 
@@ -936,49 +1002,22 @@ void draw_lines( struct matrix * points, screen s, color c, z_buff zb) {
 
 		draw_line( points->m[0][i], points->m[1][i], points->m[2][i],
 							 points->m[0][i+1], points->m[1][i+1], points->m[2][i+1],
-							 s, c, zb, "None", potato);
+							 s, c, zb);
 	}
 }
 
 
 void draw_line(int x0, int y0, double z0,
 							 int x1, int y1, double z1,
-							 screen s, color c, z_buff zb,
-							 char* shading, union cv sandy) {
+							 screen s, color c, z_buff zb) {
 
 	//printf("Drawing the line\n");
 	int x, y, z, d, dx, dy;
 	double dz;
-	//color c0, c1, dc;
-	double c0r, c0g, c0b,
-		c1r, c1g, c1b;
-	double dcr, dcg, dcb;
-
-	//c0 = c;
-
+ 
 	x = x0;
 	y = y0;
 	z = z0;
-
-	if (strcmp(shading, "gouraud") == 0){
-
-		c0r = sandy.c[0][0];
-		c0g = sandy.c[0][1];
-		c0b = sandy.c[0][2];
-
-		c1r = sandy.c[1][0];
-		c1g = sandy.c[1][1];
-		c1b = sandy.c[1][2];
-		/*
-			c0.red = sandy.c[0][0];
-			c0.green = sandy.c[0][1];
-			c0.blue = sandy.c[0][2];
-
-			c1.red = sandy.c[1][0];
-			c1.green = sandy.c[1][1];
-			c1.blue = sandy.c[1][2];
-		*/
-	}
 
 	//swap points so we're always drawing left to right
 	if ( x0 > x1 ) {
@@ -988,45 +1027,12 @@ void draw_line(int x0, int y0, double z0,
 		x1 = x0;
 		y1 = y0;
 		z1 = z0;
-
-		if (strcmp(shading, "gouraud") == 0){
-
-			c0r = sandy.c[1][0];
-			c0g = sandy.c[1][1];
-			c0b = sandy.c[1][2];
-
-			c1r = sandy.c[0][0];
-			c1g = sandy.c[0][1];
-			c1b = sandy.c[0][2];
-			/*
-				c0.red = sandy.c[1][0];
-				c0.green = sandy.c[1][1];
-				c0.blue = sandy.c[1][2];
-
-				c1.red = sandy.c[0][0];
-				c1.green = sandy.c[0][1];
-				c1.blue = sandy.c[0][2];
-			*/
-		}
 	}
 
 	//need to know dx and dy for this version
 	dx = (x1 - x) * 2;
 	dy = (y1 - y) * 2;
 	dz = (z1 - z) / distance(x, y, x1, y1);
-
-	if (strcmp(shading, "gouraud") == 0){
-		/*
-			dc.red = (c1.red - c0.red) / distance(x, y, x1, y1);
-			dc.green = (c1.green - c0.green) / distance(x, y, x1, y1);
-			dc.blue = (c1.blue - c0.blue) / distance(x, y, x1, y1);
-		*/
-		dcr = (c1r - c0r) / distance(x, y, x1, y1);
-		dcg = (c1g - c0g) / distance(x, y, x1, y1);
-		dcb = (c1b - c0b) / distance(x, y, x1, y1);
-
-	}
-
 
 	//positive slope: Octants 1, 2 (5 and 6)
 	if ( dy > 0 ) {
@@ -1036,11 +1042,7 @@ void draw_line(int x0, int y0, double z0,
 			d = dy - ( dx / 2 );
 
 			while ( x <= x1 ) {
-				if (strcmp(shading, "gouraud") == 0){
-					c.red = c0r;
-					c.green = c0g;
-					c.blue = c0b;
-				}
+			
 				plot(s, c, zb, x, y, z);
 
 				if ( d < 0 ) {
@@ -1053,10 +1055,208 @@ void draw_line(int x0, int y0, double z0,
 					d = d + dy - dx;
 				}
 				z = z + dz;
+			}
+		}
+
+		//slope > 1: Octant 2 (6)
+		else {
+			d = ( dy / 2 ) - dx;
+			while ( y <= y1 ) {
+			 
+				plot(s, c, zb, x, y, z);
+				if ( d > 0 ) {
+					y = y + 1;
+					d = d - dx;
+				}
+				else {
+					y = y + 1;
+					x = x + 1;
+					d = d + dy - dx;
+				}
+				z = z + dz;
+			}
+		}
+	}
+
+	//negative slope: Octants 7, 8 (3 and 4)
+	else {
+
+		//slope > -1: Octant 8 (4)
+		if ( dx > abs(dy) ) {
+
+			d = dy + ( dx / 2 );
+
+			while ( x <= x1 ) {
+				
+				plot(s, c, zb, x, y, z);
+
+				if ( d > 0 ) {
+					x = x + 1;
+					d = d + dy;
+				}
+				else {
+					x = x + 1;
+					y = y - 1;
+					d = d + dy + dx;
+				}
+				z = z + dz;
+			}
+		}
+
+		//slope < -1: Octant 7 (3)
+		else {
+
+			d =  (dy / 2) + dx;
+
+			while ( y >= y1 ) {
+				
+				plot(s, c, zb, x, y, z);
+				if ( d < 0 ) {
+					y = y - 1;
+					d = d + dx;
+				}
+				else {
+					y = y - 1;
+					x = x + 1;
+					d = d + dy + dx;
+				}
+				z = z + dz;
+
+			}
+		}
+	}
+}
+
+
+void draw_line_with_shading(int x0, int y0, double z0,
+														int x1, int y1, double z1,
+														screen s, z_buff zb,
+														char* shading, union shade_info sh){
+
+
+	int x, y, z, d, dx, dy;
+	double dz;
+
+	double *c0, *c1;
+	double dcr, dcg, dcb;
+
+	double *n0, *n1;
+	vector dn;
+
+	struct light *l;
+	struct constants *cons;
+	vector light;
+	color c, amb;
+	
+	x = x0;
+	y = y0;
+	z = z0;
+
+	if (strcmp(shading, "gouraud") == 0){
+		c0 = sh.gouraud.c0;
+		c1 = sh.gouraud.c1;
+	}
+
+	if (strcmp(shading, "phong") == 0){
+		n0 = sh.phong.n0;
+		n1 = sh.phong.n1;
+
+		l = sh.phong.l;
+		cons = sh.phong.c;
+		amb = sh.phong.amb;
+	}
+
+	//swap points so we're always drawing left to right
+	if ( x0 > x1 ) {
+		x = x1;
+		y = y1;
+		z = z1;
+		x1 = x0;
+		y1 = y0;
+		z1 = z0;
+
+		if (strcmp(shading, "gouraud") == 0){
+			c0 = sh.gouraud.c1;
+			c1 = sh.gouraud.c0;
+		}
+
+		if (strcmp(shading, "phong") == 0){
+			n0 = sh.phong.n1;
+			n1 = sh.phong.n0;
+		}
+	}
+
+	//need to know dx and dy for this version
+	dx = (x1 - x) * 2;
+	dy = (y1 - y) * 2;
+	dz = (z1 - z) / distance(x, y, x1, y1);
+
+	if (strcmp(shading, "gouraud") == 0){
+		/*
+			dcr = (c1r - c0r) / distance(x, y, x1, y1);
+			dcg = (c1g - c0g) / distance(x, y, x1, y1);
+			dcb = (c1b - c0b) / distance(x, y, x1, y1);
+		*/
+		dcr = (c1[0] - c0[0]) / distance(x, y, x1, y1);
+		dcg = (c1[1] - c0[1]) / distance(x, y, x1, y1);
+		dcb = (c1[2] - c0[2]) / distance(x, y, x1, y1);
+	}
+
+	if (strcmp(shading, "phong") == 0){
+			
+		dn[X] = (n1[X] - n0[X]) / distance(x, y, x1, y1);
+		dn[Y] = (n1[Y] - n0[Y]) / distance(x, y, x1, y1);
+		dn[Z] = (n1[Z] - n0[Z]) / distance(x, y, x1, y1);
+			
+	}
+
+	//positive slope: Octants 1, 2 (5 and 6)
+	if ( dy > 0 ) {
+
+		//slope < 1: Octant 1 (5)
+		if ( dx > dy ) {
+			d = dy - ( dx / 2 );
+
+			while ( x <= x1 ) {
+				
 				if (strcmp(shading, "gouraud") == 0){
-					c0r += dcr;
-					c0g += dcg;
-					c0b += dcb;
+					c.red = c0[0];
+					c.green = c0[1];
+					c.blue = c0[2];
+				}
+
+				if (strcmp(shading, "phong") == 0){
+					
+					light[X] = x - l -> c[X];
+					light[Y] = y - l -> c[Y];
+					light[Z] = z - l -> c[Z];
+					
+					c = get_illumination(light, n0, l -> l, amb, cons);
+				}
+				
+				plot(s, c, zb, x, y, z);
+
+				if ( d < 0 ) {
+					x = x + 1;
+					d = d + dy;
+				}
+				else {
+					x = x + 1;
+					y = y + 1;
+					d = d + dy - dx;
+				}
+				
+				z = z + dz;
+				if (strcmp(shading, "gouraud") == 0){
+					c0[0] += dcr;
+					c0[1] += dcg;
+					c0[2] += dcb;
+				}
+
+				if (strcmp(shading, "phong") == 0){
+					n0[X] += dn[X];
+					n0[Y] += dn[Y];
+					n0[Z] += dn[Z];
 				}
 			}
 		}
@@ -1065,11 +1265,22 @@ void draw_line(int x0, int y0, double z0,
 		else {
 			d = ( dy / 2 ) - dx;
 			while ( y <= y1 ) {
+				
 				if (strcmp(shading, "gouraud") == 0){
-					c.red = c0r;
-					c.green = c0g;
-					c.blue = c0b;
+					c.red = c0[0];
+					c.green = c0[1];
+					c.blue = c0[2];
 				}
+
+				if (strcmp(shading, "phong") == 0){
+					
+					light[X] = x - l -> c[X];
+					light[Y] = y - l -> c[Y];
+					light[Z] = z - l -> c[Z];
+					
+					c = get_illumination(light, n0, l -> l, amb, cons);
+				}
+				
 				plot(s, c, zb, x, y, z);
 				if ( d > 0 ) {
 					y = y + 1;
@@ -1082,9 +1293,15 @@ void draw_line(int x0, int y0, double z0,
 				}
 				z = z + dz;
 				if (strcmp(shading, "gouraud") == 0){
-					c0r += dcr;
-					c0g += dcg;
-					c0b += dcb;
+					c0[0] += dcr;
+					c0[1] += dcg;
+					c0[2] += dcb;
+				}
+
+				if (strcmp(shading, "phong") == 0){
+					n0[X] += dn[X];
+					n0[Y] += dn[Y];
+					n0[Z] += dn[Z];
 				}
 			}
 		}
@@ -1099,11 +1316,22 @@ void draw_line(int x0, int y0, double z0,
 			d = dy + ( dx / 2 );
 
 			while ( x <= x1 ) {
+				
 				if (strcmp(shading, "gouraud") == 0){
-					c.red = c0r;
-					c.green = c0g;
-					c.blue = c0b;
+					c.red = c0[0];
+					c.green = c0[1];
+					c.blue = c0[2];
 				}
+
+				if (strcmp(shading, "phong") == 0){
+					
+					light[X] = x - l -> c[X];
+					light[Y] = y - l -> c[Y];
+					light[Z] = z - l -> c[Z];
+					
+					c = get_illumination(light, n0, l -> l, amb, cons);
+				}
+				
 				plot(s, c, zb, x, y, z);
 
 				if ( d > 0 ) {
@@ -1117,9 +1345,15 @@ void draw_line(int x0, int y0, double z0,
 				}
 				z = z + dz;
 				if (strcmp(shading, "gouraud") == 0){
-					c0r += dcr;
-					c0g += dcg;
-					c0b += dcb;
+					c0[0] += dcr;
+					c0[1] += dcg;
+					c0[2] += dcb;
+				}
+
+				if (strcmp(shading, "phong") == 0){
+					n0[X] += dn[X];
+					n0[Y] += dn[Y];
+					n0[Z] += dn[Z];
 				}
 			}
 		}
@@ -1130,11 +1364,22 @@ void draw_line(int x0, int y0, double z0,
 			d =  (dy / 2) + dx;
 
 			while ( y >= y1 ) {
+				
 				if (strcmp(shading, "gouraud") == 0){
-					c.red = c0r;
-					c.green = c0g;
-					c.blue = c0b;
+					c.red = c0[0];
+					c.green = c0[1];
+					c.blue = c0[2];
 				}
+
+				if (strcmp(shading, "phong") == 0){
+					
+					light[X] = x - l -> c[X];
+					light[Y] = y - l -> c[Y];
+					light[Z] = z - l -> c[Z];
+					
+					c = get_illumination(light, n0, l -> l, amb, cons);
+				}
+				
 				plot(s, c, zb, x, y, z);
 				if ( d < 0 ) {
 					y = y - 1;
@@ -1147,9 +1392,15 @@ void draw_line(int x0, int y0, double z0,
 				}
 				z = z + dz;
 				if (strcmp(shading, "gouraud") == 0){
-					c0r += dcr;
-					c0g += dcg;
-					c0b += dcb;
+					c0[0] += dcr;
+					c0[1] += dcg;
+					c0[2] += dcb;
+				}
+
+				if (strcmp(shading, "phong") == 0){
+					n0[X] += dn[X];
+					n0[Y] += dn[Y];
+					n0[Z] += dn[Z];
 				}
 			}
 		}

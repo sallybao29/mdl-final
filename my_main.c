@@ -268,12 +268,14 @@ void my_main( int polygons ) {
 	char *shade;
 	color amb;
 
+	shade = "None";
+	
 	s = new_stack();
   tmp = new_matrix(4, 1000);
   clear_screen(t);
 	init_z_buff(zb);
 
-	step = 4;
+	step = 2;
   num_frames = 1;
 
   g.red = 0;
@@ -378,15 +380,16 @@ void my_main( int polygons ) {
             sscanf(mesh_l, "f %d %d %d\n", &fi1, &fi2, &fi3);
             printf("DEBUGGING %lf %lf %lf\n",mesh_m->m[0][fi1], mesh_m->m[1][fi1], mesh_m->m[2][fi1] );
             add_polygon(tmp, mesh_m->m[0][fi1], mesh_m->m[1][fi1], mesh_m->m[2][fi1],
-                      mesh_m->m[0][fi2],mesh_m->m[1][fi2],mesh_m->m[2][fi2],
-                      mesh_m->m[0][fi3],mesh_m->m[1][fi3],mesh_m->m[2][fi3]);
+												mesh_m->m[0][fi2],mesh_m->m[1][fi2],mesh_m->m[2][fi2],
+												mesh_m->m[0][fi3],mesh_m->m[1][fi3],mesh_m->m[2][fi3]);
           }
         }
         matrix_mult( s->data[ s->top ], tmp );
         //print_matrix( tmp );
         draw_polygons( tmp, t, zb, l, c, amb, shade );
         tmp->lastcol = 0;
-        break;
+				free_matrix(mesh_m);
+				break;
       case MOVE:
 				//get the factors
 				xval = op[i].op.move.d[0];
@@ -485,7 +488,7 @@ void my_main( int polygons ) {
 
   free_stack( s );
   free_matrix( tmp );
-  free_matrix( mesh_m );
+  //free_matrix( mesh_m );
   if (num_frames > 1){
     for (i = 0; i < num_frames; i++){
       while (knobs[i] != NULL){

@@ -16,9 +16,18 @@ struct vertex_normal {
 	double normal[3];
 };
 
-union cv {
-	double c[2][3];
-	vector v[2];
+union shade_info {
+	struct {
+		double c0[3];
+		double c1[3];
+	} gouraud;
+	struct {
+		struct light *l;
+		struct constants *c;
+		color amb;
+		vector n0;
+		vector n1;
+	} phong;
 };
 
 

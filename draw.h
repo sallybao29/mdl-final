@@ -9,8 +9,12 @@
 
 void draw_line(int x0, int y0, double z0,
 							 int x1, int y1, double z1,
-							 screen s, color c, z_buff zb,
-							 char* shading, union cv n);
+							 screen s, color c, z_buff zb);
+
+void draw_line_with_shading(int x0, int y0, double z0,
+														int x1, int y1, double z1,
+														screen s, z_buff zb,
+														char* shading, union shade_info sh);
 
 void fill( struct matrix *points, int i, screen s, z_buff zb,
 					 struct light *light, struct constants *c, color amb,
