@@ -275,7 +275,7 @@ void my_main( int polygons ) {
   clear_screen(t);
 	init_z_buff(zb);
 
-	step = 2;
+	step = 5;
   num_frames = 1;
 
   g.red = 0;
@@ -371,8 +371,8 @@ void my_main( int polygons ) {
         while( /*!feof(mesh_f)*/ fgets(mesh_l, 255, mesh_f) != NULL ){
 
           /*
-          fseek(mesh_f,-1,SEEK_CUR);
-          fgets(mesh_l, 255, mesh_f);
+						fseek(mesh_f,-1,SEEK_CUR);
+						fgets(mesh_l, 255, mesh_f);
           */
           mesh_l[strlen(mesh_l)-1]='\0';
           //printf("READ LINE: [%s]\n", mesh_l);
