@@ -483,6 +483,7 @@ void my_main( int polygons ) {
 			printf("Generating %s\n", frame_name);
 			save_extension(t, frame_name);
 			clear_screen(t);
+      init_z_buff(zb);
 			while (s -> top > 0)
 				pop(s);
 		}
