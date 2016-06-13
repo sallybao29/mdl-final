@@ -60,9 +60,6 @@ color change_color( int i ) {
   return c;
 }
 
-int valid_color(color c){
-
-}
 
 /*======== void plot() ==========
 	Inputs:   screen s
