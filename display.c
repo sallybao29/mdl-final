@@ -60,22 +60,26 @@ color change_color( int i ) {
   return c;
 }
 
-/*======== void plot() ==========
-Inputs:   screen s
-         color c
-         int x
-         int y 
-Returns: 
-Sets the color at pixel x, y to the color represented by c
-Note that s[0][0] will be the upper left hand corner 
-of the screen. 
-If you wish to change this behavior, you can change the indicies
-of s that get set. For example, using s[x][YRES-1-y] will have
-pixel 0, 0 located at the lower left corner of the screen
+int valid_color(color c){
 
-02/12/10 09:09:00
-jdyrlandweaver
-====================*/
+}
+
+/*======== void plot() ==========
+	Inputs:   screen s
+	color c
+	int x
+	int y 
+	Returns: 
+	Sets the color at pixel x, y to the color represented by c
+	Note that s[0][0] will be the upper left hand corner 
+	of the screen. 
+	If you wish to change this behavior, you can change the indicies
+	of s that get set. For example, using s[x][YRES-1-y] will have
+	pixel 0, 0 located at the lower left corner of the screen
+
+	02/12/10 09:09:00
+	jdyrlandweaver
+	====================*/
 void plot( screen s, color c, z_buff zb, int x, int y, double z) {
   int newy = YRES - 1 - y;
   if ( x >= 0 && x < XRES && newy >=0 && newy < YRES && z >= zb[x][newy]

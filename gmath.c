@@ -234,10 +234,6 @@ color get_illumination(vector light, vector normal, double *cp, color ca, struct
 	diffuse = get_diffuse(light, normal, cp[0], cons -> r[Kd]);
 	specular = get_specular(light, normal, cp[0], cons -> r[Ks]);
 
-	ambient = ambient > 0 ? ambient : 0;
-	diffuse = diffuse > 0 ? diffuse : 0;
-	specular = specular > 0 ? specular : 0;
-
 	val = ambient + diffuse + specular;
 	c.red = val <= 255 ? val : 255;
 
@@ -245,20 +241,12 @@ color get_illumination(vector light, vector normal, double *cp, color ca, struct
 	diffuse = get_diffuse(light, normal, cp[1], cons -> g[Kd]);
 	specular = get_specular(light, normal, cp[1], cons -> g[Ks]);
 
-	ambient = ambient > 0 ? ambient : 0;
-	diffuse = diffuse > 0 ? diffuse : 0;
-	specular = specular > 0 ? specular : 0;
-
 	val = ambient + diffuse + specular;
 	c.green = val <= 255 ? val : 255;
 
 	ambient = get_ambient(ca.blue, cons -> b[Ka]);
 	diffuse = get_diffuse(light, normal, cp[2], cons -> b[Kd]);
 	specular = get_specular(light, normal, cp[2], cons -> b[Ks]);
-
-	ambient = ambient > 0 ? ambient : 0;
-	diffuse = diffuse > 0 ? diffuse : 0;
-	specular = specular > 0 ? specular : 0;
 
 	val = ambient + diffuse + specular;
 	c.blue = val <= 255 ? val : 255;

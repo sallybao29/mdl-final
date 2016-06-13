@@ -306,18 +306,18 @@ void my_main( int polygons ) {
 				break;
 
 			case LIGHT:
-				l = lookup_symbol(op[i].op.light.p -> name) -> s.l;
+				l = op[i].op.light.p -> s.l;
 				break;
 
 			case CONSTANTS:
-				c = lookup_symbol(op[i].op.constants.p -> name) -> s.c;
+				c = op[i].op.constants.p -> s.c;
 				break;
 
 			case SHADING:
 				shade = op[i].op.shading.p -> name;
 				break;
 
-      case SPHERE:
+			case SPHERE:
 				add_sphere( tmp,op[i].op.sphere.d[0], //cx
 										op[i].op.sphere.d[1],  //cy
 										op[i].op.sphere.d[2],  //cz
@@ -325,12 +325,11 @@ void my_main( int polygons ) {
 										step);
 				//apply the current top origin
 				matrix_mult( s->data[ s->top ], tmp );
-
 				draw_polygons( tmp, t, zb, l, c, amb, shade );
 				tmp->lastcol = 0;
 				break;
 
-      case TORUS:
+			case TORUS:
 				add_torus( tmp, op[i].op.torus.d[0], //cx
 									 op[i].op.torus.d[1],     //cy
 									 op[i].op.torus.d[2],    //cz
@@ -342,7 +341,7 @@ void my_main( int polygons ) {
 				tmp->lastcol = 0;
 				break;
 
-      case BOX:
+			case BOX:
 				add_box( tmp, op[i].op.box.d0[0],
 								 op[i].op.box.d0[1],
 								 op[i].op.box.d0[2],
@@ -354,7 +353,7 @@ void my_main( int polygons ) {
 				tmp->lastcol = 0;
 				break;
 
-      case LINE:
+			case LINE:
 				add_edge( tmp, op[i].op.line.p0[0],
 									op[i].op.line.p0[1],
 									op[i].op.line.p0[1],
@@ -385,15 +384,15 @@ void my_main( int polygons ) {
             add_polygon(tmp, mesh_m->m[0][fi1], mesh_m->m[1][fi1], mesh_m->m[2][fi1],
 												mesh_m->m[0][fi2],mesh_m->m[1][fi2],mesh_m->m[2][fi2],
 												mesh_m->m[0][fi3],mesh_m->m[1][fi3],mesh_m->m[2][fi3]);
-          }
-        }
-        matrix_mult( s->data[ s->top ], tmp );
-        //print_matrix( tmp );
-        draw_polygons( tmp, t, zb, l, c, amb, shade );
-        tmp->lastcol = 0;
+					}
+				}
+				matrix_mult( s->data[ s->top ], tmp );
+				//print_matrix( tmp );
+				draw_polygons( tmp, t, zb, l, c, amb, shade );
+				tmp->lastcol = 0;
 				free_matrix(mesh_m);
 				break;
-      case MOVE:
+			case MOVE:
 				//get the factors
 				xval = op[i].op.move.d[0];
 				yval =  op[i].op.move.d[1];
@@ -414,7 +413,7 @@ void my_main( int polygons ) {
 				free_matrix( transform );
 				break;
 
-      case SCALE:
+			case SCALE:
 
 				xval = op[i].op.scale.d[0];
 				yval = op[i].op.scale.d[1];
@@ -434,7 +433,7 @@ void my_main( int polygons ) {
 				free_matrix( transform );
 				break;
 
-      case ROTATE:
+			case ROTATE:
 
 				xval = op[i].op.rotate.degrees * ( M_PI / 180 );
 
@@ -456,50 +455,50 @@ void my_main( int polygons ) {
 				copy_matrix( transform, s->data[ s->top ] );
 				free_matrix( transform );
 				break;
-      case SET:
+			case SET:
 				set_value(lookup_symbol(op[i].op.set.p -> name), op[i].op.set.val);
 				break;
 
-      case SETKNOBS:
+			case SETKNOBS:
 				for (f = 0; f < lastsym; f++)
 					set_value(&symtab[i], op[i].op.setknobs.value);
 
 				break;
-      case PUSH:
+			case PUSH:
 				push( s );
 				break;
-      case POP:
+			case POP:
 				pop( s );
 				break;
-      case SAVE:
+			case SAVE:
 				save_extension( t, op[i].op.save.p->name );
 				break;
-      case DISPLAY:
+			case DISPLAY:
 				display( t );
 				break;
-      }
-    }
-    if (num_frames > 1){
-      sprintf(frame_name, "anim/%s%03d.png", name, j);
-      printf("Generating %s\n", frame_name);
-      save_extension(t, frame_name);
-      clear_screen(t);
-      while (s -> top > 0)
+			}
+		}
+		if (num_frames > 1){
+			sprintf(frame_name, "anim/%s%03d.png", name, j);
+			printf("Generating %s\n", frame_name);
+			save_extension(t, frame_name);
+			clear_screen(t);
+			while (s -> top > 0)
 				pop(s);
-    }
-  }
+		}
+	}
 
-  free_stack( s );
-  free_matrix( tmp );
-  //free_matrix( mesh_m );
-  if (num_frames > 1){
-    for (i = 0; i < num_frames; i++){
-      while (knobs[i] != NULL){
+	free_stack( s );
+	free_matrix( tmp );
+	//free_matrix( mesh_m );
+	if (num_frames > 1){
+		for (i = 0; i < num_frames; i++){
+			while (knobs[i] != NULL){
 				vn = knobs[i];
 				knobs[i] = knobs[i] -> next;
 				free(vn);
-      }
-    }
-    free(knobs);
-  }
+			}
+		}
+		free(knobs);
+	}
 }
