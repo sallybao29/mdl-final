@@ -79,18 +79,17 @@ print the matrix
 void print_matrix(struct matrix *m) {
 
   int i, j;
-  for (i=0; i < m->rows; i++) {
-    for (j=0; j < m->cols; j++) 
-      printf("%f ", m->m[i][j]);
-    printf("\n");
+  for (i=0; i < m->lastcol; i++) {
+		printf("%f %f %f %f\n", m->m[0][i], m->m[1][i], m->m[2][i], m->m[3][i]);
   }
+	printf("\n");
 }
 
 /*-------------- void ident() --------------
-Inputs:  struct matrix *m <-- assumes m is a square matrix
-Returns: 
+	Inputs:  struct matrix *m <-- assumes m is a square matrix
+	Returns: 
 
-turns m in to an identity matrix
+	turns m in to an identity matrix
 */
 void ident(struct matrix *m) {
 
@@ -99,9 +98,9 @@ void ident(struct matrix *m) {
     for (c=0; c < m->cols; c++)  {
 
       if ( r == c )
-	m->m[r][c] = 1;
+				m->m[r][c] = 1;
       else
-	m->m[r][c] = 0;
+				m->m[r][c] = 0;
     }
   }
 }
