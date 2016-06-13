@@ -133,6 +133,29 @@ void fill( struct matrix *points, int i, screen s, z_buff zb,
 
 		lookup_normal(vertices, normals, normal, p[X][BOT], p[Y][BOT], p[Z][BOT]);
 		cb = get_illumination(lb, normal, light -> l, amb, c);
+
+		//draw outline of polygon
+		sh.gouraud.c0[0] = ct.red;
+		sh.gouraud.c0[1] = ct.green;
+		sh.gouraud.c0[2] = ct.blue;
+		sh.gouraud.c1[0] = cm.red;
+		sh.gouraud.c1[1] = cm.green;
+		sh.gouraud.c1[2] = cm.blue;
+		
+		draw_line_with_shading(p[X][TOP], p[Y][TOP], p[Z][TOP],
+		p[X][MID], p[Y][MID], p[Z][MID], s, zb, shading, sh);
+		sh.gouraud.c1[0] = cb.red;
+		sh.gouraud.c1[1] = cb.green;
+		sh.gouraud.c1[2] = cb.blue;
+		
+		draw_line_with_shading(p[X][TOP], p[Y][TOP], p[Z][TOP],
+		p[X][BOT], p[Y][BOT], p[Z][BOT], s, zb, shading, sh);
+		sh.gouraud.c0[0] = cm.red;
+		sh.gouraud.c0[1] = cm.green;
+		sh.gouraud.c0[2] = cm.blue;
+		
+		draw_line_with_shading(p[X][MID], p[Y][MID], p[Z][MID],
+		p[X][BOT], p[Y][BOT], p[Z][BOT], s, zb, shading, sh);
 		
 		//calculate change for each component of color for each vertex
 		dc0r = (ct.red - cb.red) / dist0;
@@ -189,7 +212,31 @@ void fill( struct matrix *points, int i, screen s, z_buff zb,
 		lookup_normal(vertices, normals, nt, p[X][TOP], p[Y][TOP], p[Z][TOP]);
 		lookup_normal(vertices, normals, nm, p[X][MID], p[Y][MID], p[Z][MID]);
 		lookup_normal(vertices, normals, nb, p[X][BOT], p[Y][BOT], p[Z][BOT]);
+		/*
+		//draw outline of polygon
+		sh.phong.n0[X] = nt[X]; 
+		sh.phong.n0[Y] = nt[Y]; 
+		sh.phong.n0[Z] = nt[Z]; 
+		sh.phong.n1[X] = nm[X]; 
+		sh.phong.n1[Y] = nm[Y]; 
+		sh.phong.n1[Z] = nm[Z]; 
 
+		draw_line_with_shading(p[X][TOP], p[Y][TOP], p[Z][TOP],
+				       p[X][MID], p[Y][MID], p[Z][MID], s, zb, shading, sh);
+	
+		sh.phong.n1[X] = nb[X]; 
+		sh.phong.n1[Y] = nb[Y]; 
+		sh.phong.n1[Z] = nb[Z]; 
+
+		draw_line_with_shading(p[X][TOP], p[Y][TOP], p[Z][TOP],
+		p[X][BOT], p[Y][BOT], p[Z][BOT], s, zb, shading, sh);
+		sh.phong.n0[X] = nm[X]; 
+		sh.phong.n0[Y] = nm[Y]; 
+		sh.phong.n0[Z] = nm[Z];
+
+		draw_line_with_shading(p[X][MID], p[Y][MID], p[Z][MID],
+		p[X][BOT], p[Y][BOT], p[Z][BOT], s, zb, shading, sh);
+		*/
 		dn0[X] = (nt[X] - nb[X]) / dist0;
 		dn0[Y] = (nt[Y] - nb[Y]) / dist0;
 		dn0[Z] = (nt[Z] - nb[Z]) / dist0;
@@ -241,7 +288,7 @@ void fill( struct matrix *points, int i, screen s, z_buff zb,
 		sh.phong.amb = amb;
 	}
 
-	while ((int)y0 < (int)(p[Y][TOP])){
+	while (y0 <= (int)(p[Y][TOP])){
 		/*
 			if (y0 == (int)p[Y][TOP] &&
 			p[Y][TOP] == p[Y][MID]){
