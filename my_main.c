@@ -269,7 +269,7 @@ void my_main( int polygons ) {
 	color amb;
 
 	shade = "None";
-	
+
 	s = new_stack();
   tmp = new_matrix(4, 1000);
   clear_screen(t);
@@ -368,29 +368,20 @@ void my_main( int polygons ) {
         mesh_m = new_matrix(4,1000);
         strcpy(mesh_n,op[i].op.mesh.name);
         mesh_f = fopen(mesh_n, "r");
-        while( /*!feof(mesh_f)*/ fgets(mesh_l, 255, mesh_f) != NULL ){
-
-          /*
-						fseek(mesh_f,-1,SEEK_CUR);
-						fgets(mesh_l, 255, mesh_f);
-          */
+        while( fgets(mesh_l, 255, mesh_f) != NULL ){
           mesh_l[strlen(mesh_l)-1]='\0';
           //printf("READ LINE: [%s]\n", mesh_l);
-
-          if( mesh_l[0] == 'v' ){
-            //fseek(mesh_f,-1,SEEK_CUR);
+          if( mesh_l[0] == 'v' && mesh_l[1] == ' '){
             sscanf(mesh_l, "v %lf %lf %lf\n", &v1, &v2, &v3);
             add_point(mesh_m, v1 , v2, v3);
-            //printf("read: %lf %lf %lf\n",v1, v2, v3);
           }
           if( mesh_l[0] == 'f' ){
-            //fseek(mesh_f,-1,SEEK_CUR);
-            sscanf(mesh_l, "f %d %d %d\n", &fi1, &fi2, &fi3);
+            sscanf(mesh_l, "f %d/%*s %d/%*s %d/%*s\n", &fi1, &fi2, &fi3);
             fi1--; //THE MESH FILE DOESN'T HAVE ZERO BASED INDEXING GRRRRR
             fi2--;
             fi3--;
-            //printf("DEBUGGING INDEX %d %d %d\n", fi1, fi2, fi3);
-            //printf("DEBUGGING VERTICES %lf %lf %lf\n",mesh_m->m[0][fi1], mesh_m->m[1][fi1], mesh_m->m[2][fi1] );
+            // printf("DEBUGGING INDEX %d %d %d\n", fi1, fi2, fi3);
+            // printf("DEBUGGING VERTICES %lf %lf %lf\n",mesh_m->m[0][fi1], mesh_m->m[1][fi1], mesh_m->m[2][fi1] );
             add_polygon(tmp, mesh_m->m[0][fi1], mesh_m->m[1][fi1], mesh_m->m[2][fi1],
 												mesh_m->m[0][fi2],mesh_m->m[1][fi2],mesh_m->m[2][fi2],
 												mesh_m->m[0][fi3],mesh_m->m[1][fi3],mesh_m->m[2][fi3]);
