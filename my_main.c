@@ -387,7 +387,7 @@ void my_main( int polygons ) {
 					}
 				}
 				matrix_mult( s->data[ s->top ], tmp );
-				//print_matrix( tmp );
+			  //print_matrix( tmp );
 				draw_polygons( tmp, t, zb, l, c, amb, shade );
 				tmp->lastcol = 0;
 				free_matrix(mesh_m);

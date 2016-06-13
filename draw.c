@@ -241,7 +241,7 @@ void fill( struct matrix *points, int i, screen s, z_buff zb,
 		sh.phong.amb = amb;
 	}
 
-	while ((int)y0 <= (int)(p[Y][TOP])){
+	while ((int)y0 < (int)(p[Y][TOP])){
 		/*
 			if (y0 == (int)p[Y][TOP] &&
 			p[Y][TOP] == p[Y][MID]){
