@@ -2,16 +2,17 @@ push
 light l1 0 255 255 250 50 51
 move 250 250 0
 //rotate y 50
-rotate x 50
-constants c1 .1 .2 .7 .1 .2 .7 .1 .2 .7
+//rotate x 50
+//constants c1 .1 .2 .7 .1 .2 .7 .1 .2 .7
 ambient 0 255 153
 shading gouraud
 //torus 0 0 0 50 200
-sphere 0 0 0 200
+//sphere 0 0 0 200
 push
-constants c2 .1 .5 .4 .2 .4 .4 .5 .2 .3
-rotate x 50
-rotate y 50
-box 0 0 100 100 100 100
+//constants c2 .1 .5 .4 .2 .4 .4 .5 .2 .3
+constants c3 .4 .2 .4 .4 .2 .4 .4 .2 .4
+//rotate x 50
+rotate y 70
+box 0 0 0 100 100 100
 display
 save test.png
