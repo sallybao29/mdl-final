@@ -273,7 +273,7 @@ void my_main( int polygons ) {
   clear_screen(t);
 	init_z_buff(zb);
 
-	step = 5;
+	step = 1;
   num_frames = 1;
 
   g.red = 0;
